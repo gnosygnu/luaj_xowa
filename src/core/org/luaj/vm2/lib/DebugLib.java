@@ -384,44 +384,44 @@ public class DebugLib extends TwoArgFunction {
 	}
 
 	public void onCall(LuaFunction f) {
-		LuaThread t = globals.running;
-		if (t.inhook) return;
-		callstack().onCall(f);
-		if (t.hookcall && t.hookfunc != null) 
-			callHook(CALL, NIL);
+//		LuaThread t = globals.running;
+//		if (t.inhook) return;
+//		callstack().onCall(f);
+//		if (t.hookcall && t.hookfunc != null) 
+//			callHook(CALL, NIL);
 	}
 
 	public void onCall(LuaClosure c, Varargs varargs, LuaValue[] stack) {
-		LuaThread t = globals.running;
-		if (t.inhook) return;
-		callstack().onCall(c, varargs, stack);
-		if (t.hookcall && t.hookfunc != null) 
-			callHook(CALL, NIL);
+//		LuaThread t = globals.running;
+//		if (t.inhook) return;
+//		callstack().onCall(c, varargs, stack);
+//		if (t.hookcall && t.hookfunc != null) 
+//			callHook(CALL, NIL);
 	}
 
 	public void onInstruction(int pc, Varargs v, int top) {
-		LuaThread t = globals.running;
-		if (t.inhook) return;
-		callstack().onInstruction(pc, v, top);
-		if (t.hookfunc == null) return;
-		if (t.hookcount > 0)
-			if (++t.bytecodes % t.hookcount == 0)
-				callHook(COUNT, NIL);
-		if (t.hookline) {
-			int newline = callstack().currentline();
-			if ( newline != t.lastline ) {
-				t.lastline = newline;
-				callHook(LINE, LuaValue.valueOf(newline));
-			}
-		}
+//		LuaThread t = globals.running;
+//		if (t.inhook) return;
+//		callstack().onInstruction(pc, v, top);
+//		if (t.hookfunc == null) return;
+//		if (t.hookcount > 0)
+//			if (++t.bytecodes % t.hookcount == 0)
+//				callHook(COUNT, NIL);
+//		if (t.hookline) {
+//			int newline = callstack().currentline();
+//			if ( newline != t.lastline ) {
+//				t.lastline = newline;
+//				callHook(LINE, LuaValue.valueOf(newline));
+//			}
+//		}
 	}
 
 	public void onReturn() {
-		LuaThread t = globals.running;
-		if (t.inhook) return;
-		callstack().onReturn();
-		if (t.hookcall && t.hookfunc != null)
-			callHook(RETURN, NIL);
+//		LuaThread t = globals.running;
+//		if (t.inhook) return;
+//		callstack().onReturn();
+//		if (t.hookcall && t.hookfunc != null)
+//			callHook(RETURN, NIL);
 	}
 
 	public String traceback(int level) {
@@ -429,17 +429,17 @@ public class DebugLib extends TwoArgFunction {
 	}
 	
 	void callHook(LuaValue type, LuaValue arg) {
-		LuaThread t = globals.running;
-		t.inhook = true;
-		try {
-			t.hookfunc.call(type, arg);
-		} catch (LuaError e) {
-			throw e;
-		} catch (RuntimeException e) {
-			throw new LuaError(e);
-		} finally {
-			t.inhook = false;
-		}
+//		LuaThread t = globals.running;
+//		t.inhook = true;
+//		try {
+//			t.hookfunc.call(type, arg);
+//		} catch (LuaError e) {
+//			throw e;
+//		} catch (RuntimeException e) {
+//			throw new LuaError(e);
+//		} finally {
+//			t.inhook = false;
+//		}
 	}
 	
 	CallStack callstack() {

@@ -558,10 +558,12 @@ public class LuaTable extends LuaValue implements Metatable {
 		int i = 1;
 
 		// Count integer keys in array part
+		int array_len = array.length;
 		for ( int bit = 0; bit < 31; ++bit ) {
-			if ( i > array.length )
+			if ( i > array_len )
 				break;
-			int j = Math.min(array.length, 1 << bit);
+			int bitted_1 = 1 << bit;
+			int j = array_len < bitted_1 ? array_len : bitted_1; // XOWA.PERF: was "Math.min(array_len, 1 << bit)" which showed up as slow on VisualVM; DATE:2014-08-08
 			int c = 0;
 			while ( i <= j ) {
 				if ( array[ i++ - 1 ] != null )
@@ -572,7 +574,8 @@ public class LuaTable extends LuaValue implements Metatable {
 		}
 
 		// Count integer keys in hash part
-		for ( i = 0; i < hash.length; ++i ) {
+		int hash_len = hash.length;
+		for ( i = 0; i < hash_len; ++i ) {
 			for ( Slot s = hash[i]; s != null; s = s.rest() ) {
 				int k;
 				if ( ( k = s.arraykey(Integer.MAX_VALUE) ) > 0 ) {
@@ -712,6 +715,7 @@ public class LuaTable extends LuaValue implements Metatable {
 					if (entry != null)
 						newArray[ k - 1 ] = entry.value();
 				} else {
+					if (newHash == NOBUCKETS) continue;	// XOWA:note that if newHash == NOBUCKETS, then array len == 0 and will fail at "newHash[j]" with ArrayIndexOutOfRange; DATE:2014-08-07
 					int j = slot.keyindex( newHashMask );
 					newHash[j] = slot.relink( newHash[j] );
 				}

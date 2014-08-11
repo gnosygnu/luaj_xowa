@@ -413,12 +413,17 @@ public class LuaString extends LuaValue {
 	public LuaString substring( int beginIndex, int endIndex ) {
 		return valueOf( m_bytes, m_offset + beginIndex, endIndex - beginIndex );
 	}
-	
+
+//	private boolean hashcode_made = false;
+//	private int hashcode_cache;
 	public int hashCode() {
+//		if (hashcode_made) return hashcode_cache;		
 		int h = m_length;  /* seed */
 		int step = (m_length>>5)+1;  /* if string is too long, don't hash all its chars */
 		for (int l1=m_length; l1>=step; l1-=step)  /* compute hash */
 		    h = h ^ ((h<<5)+(h>>2)+(((int) m_bytes[m_offset+l1-1] ) & 0x0FF ));
+//		hashcode_made = true;
+//		hashcode_cache = h;
 		return h;
 	}
 	
@@ -446,10 +451,12 @@ public class LuaString extends LuaValue {
 			return false;
 		if ( s.m_bytes == m_bytes && s.m_offset == m_offset )
 			return true;
-		if ( s.hashCode() != hashCode() )
-			return false;
+		// if (hashcode_made && s.hashcode_made && s.hashCode() != hashCode() )	// XOWA.PERF: skip hash check since full bry check is done below DATE:2014-08-07
+		//	return false;
+		byte[] comp_bytes = s.m_bytes;
+		int comp_offset = s.m_offset;
 		for ( int i=0; i<m_length; i++ )
-			if ( s.m_bytes[s.m_offset+i] != m_bytes[m_offset+i] )
+			if ( comp_bytes[comp_offset+i] != m_bytes[m_offset+i] )
 				return false;
 		return true;
 	}
@@ -633,9 +640,15 @@ public class LuaString extends LuaValue {
 		int len = chars.length;
 		int rv = 0;
 		for (int i = 0; i < len; i++) {
-			int b_len = LuaString.Utf16_Len_by_char(chars[i]);
-			if (b_len == 4) ++i;		// 4 bytes; surrogate pair; skip next char; 
-			rv += b_len;  
+			int c = chars[i];	// XOWA.PERF: inlined function per VisualVM; DATE:2014-08-08
+			if		(	(c >    -1)
+				 	&& 	(c <   128))	rv += 1;		// 1 <<	7
+			else if (	(c <  2048))	rv += 2;		// 1 << 11
+			else if	(	(c > 55295)						// 0xD800
+					&&	(c < 56320)) {	rv += 4;		// 0xDFFF
+										++i;
+			}
+			else if (	(c < 65536))	rv += 3;		// 1 << 16			
 		}
 		return rv;
 	}
@@ -675,10 +688,34 @@ public class LuaString extends LuaValue {
 		int bry_idx = off;
 	    int i = 0;
 	    while (i < nchars) {
-	      char c = chars[i];
-	      int bytes_read = Utf16_Encode_char(c, chars, i, bytes, bry_idx);
-	      bry_idx += bytes_read;
-	      i += bytes_read == 4 ? 2 : 1;	// 4 bytes; surrogate pair; skip next char;
+			char c = chars[i];	// XOWA.PERF: inlined function per VisualVM; DATE:2014-08-08 			
+			if (c > -1 && c < 128) {
+				bytes[bry_idx++]	= (byte)c;
+				++i;
+			}
+			else if (c < 2048) {
+				bytes[bry_idx++] 	= (byte)(0xC0 | (c >>   6));
+				bytes[bry_idx++] 	= (byte)(0x80 | (c & 0x3F));
+				++i;
+			}	
+			else if((c > 55295)				// 0xD800
+			   && (c < 56320)) {			// 0xDFFF
+				if (i >= nchars)
+					throw new RuntimeException("incomplete surrogate pair at end of string; char=" + c);
+				int nxt_char = chars[i + 1];
+				int v = Utf16_Surrogate_merge(c, nxt_char);
+				bytes[bry_idx++] 	= (byte)(0xF0 | (v >> 18));
+				bytes[bry_idx++] 	= (byte)(0x80 | (v >> 12) & 0x3F);
+				bytes[bry_idx++] 	= (byte)(0x80 | (v >>  6) & 0x3F);
+				bytes[bry_idx++] 	= (byte)(0x80 | (v        & 0x3F));
+				i += 2;
+			}
+			else {
+				bytes[bry_idx++] 	= (byte)(0xE0 | (c >> 12));
+				bytes[bry_idx++] 	= (byte)(0x80 | (c >>  6) & 0x3F);
+				bytes[bry_idx++] 	= (byte)(0x80 | (c        & 0x3F));
+				++i;
+			}
 	    }
 		return nchars;	// NOTE: code returned # of bytes which is wrong; Globals.UTF8Stream.read caches rv as j which is used as index to char[] not byte[]; will throw out of bounds exception if bytes returned
 	}
@@ -991,6 +1028,31 @@ public class LuaString extends LuaValue {
 			return 1;
 		}
 		else if (c < 2048) {
+			b_ary[  b_pos] 	= (byte)(0xC0 | (c >>   6));
+			b_ary[++b_pos] 	= (byte)(0x80 | (c & 0x3F));
+			return 2;
+		}	
+		else if((c > 55295)				// 0xD800
+			 && (c < 56320)) {			// 0xDFFF
+			if (c_pos >= c_ary.length)
+				throw new RuntimeException("incomplete surrogate pair at end of string; char=" + c);
+			int nxt_char = c_ary[c_pos + 1];
+			int v = Utf16_Surrogate_merge(c, nxt_char);
+			b_ary[b_pos] 	= (byte)(0xF0 | (v >> 18));
+			b_ary[++b_pos] 	= (byte)(0x80 | (v >> 12) & 0x3F);
+			b_ary[++b_pos] 	= (byte)(0x80 | (v >>  6) & 0x3F);
+			b_ary[++b_pos] 	= (byte)(0x80 | (v        & 0x3F));
+			return 4;
+		}
+		else {
+			b_ary[b_pos] 	= (byte)(0xE0 | (c >> 12));
+			b_ary[++b_pos] 	= (byte)(0x80 | (c >>  6) & 0x3F);
+			b_ary[++b_pos] 	= (byte)(0x80 | (c        & 0x3F));
+			return 3;
+		}
+	}
+	public static int Utf16_Encode_char_ascii_skip(int c, char[] c_ary, int c_pos, byte[] b_ary, int b_pos) {
+		if (c < 2048) {
 			b_ary[  b_pos] 	= (byte)(0xC0 | (c >>   6));
 			b_ary[++b_pos] 	= (byte)(0x80 | (c & 0x3F));
 			return 2;
