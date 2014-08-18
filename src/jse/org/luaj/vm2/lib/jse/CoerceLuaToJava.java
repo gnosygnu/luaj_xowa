@@ -274,10 +274,13 @@ public class CoerceLuaToJava {
 			return SCORE_UNCOERCIBLE;
 		if ( baseclass == subclass )
 			return 0;
-		int min = Math.min( SCORE_UNCOERCIBLE, inheritanceLevels( baseclass, subclass.getSuperclass() ) + 1 );
+		int min_rhs =  inheritanceLevels( baseclass, subclass.getSuperclass() ) + 1;
+		int min = SCORE_UNCOERCIBLE < min_rhs ? SCORE_UNCOERCIBLE : min_rhs;	// XOWA.PERF:Math.min( SCORE_UNCOERCIBLE, inheritanceLevels( baseclass, subclass.getSuperclass() ) + 1 ); DATE:2014-08-13
 		Class[] ifaces = subclass.getInterfaces();
-		for ( int i=0; i<ifaces.length; i++ ) 
-			min = Math.min(min, inheritanceLevels(baseclass, ifaces[i]) + 1 );
+		for ( int i=0; i<ifaces.length; i++ ) {
+			min_rhs = inheritanceLevels(baseclass, ifaces[i]) + 1;
+			min = min < min_rhs ? min : min_rhs;	// XOWA.PERF:Math.min(min, inheritanceLevels(baseclass, ifaces[i]) + 1 ); DATE:2014-08-13
+		}
 		return min;
 	}
 	

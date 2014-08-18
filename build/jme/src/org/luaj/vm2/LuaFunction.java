@@ -75,7 +75,9 @@ public class LuaFunction extends LuaValue {
 	 */
 	public String classnamestub() {
 		String s = getClass().getName();
-		return s.substring(Math.max(s.lastIndexOf('.'),s.lastIndexOf('$'))+1);
+		int max_lhs = s.lastIndexOf('.');
+		int max_rhs = s.lastIndexOf('$');
+		return s.substring(max_lhs > max_rhs ? max_lhs : max_rhs + 1);// XOWA.PERF:Math.max(s.lastIndexOf('.'),s.lastIndexOf('$'))+1; DATE:2014-08-13
 	}
 	
 	/** Return a human-readable name for this function.  Returns the last part of the class name by default.

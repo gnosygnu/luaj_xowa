@@ -934,8 +934,10 @@ public class LexState {
 	void new_localvar(LuaString name) {
 		int reg = registerlocalvar(name);
 		fs.checklimit(dyd.n_actvar + 1, FuncState.LUAI_MAXVARS, "local variables");
-		if (dyd.actvar == null || dyd.n_actvar + 1 > dyd.actvar.length)
-			dyd.actvar = LuaC.realloc(dyd.actvar, Math.max(1, dyd.n_actvar * 2));
+		if (dyd.actvar == null || dyd.n_actvar + 1 > dyd.actvar.length) {
+			int max_rhs = dyd.n_actvar * 2;
+			dyd.actvar = LuaC.realloc(dyd.actvar, 1 > max_rhs ? 1 : max_rhs);	// XOWA.PERF:Math.max(1, dyd.n_actvar * 2); DATE:2014-08-13
+		}
 		dyd.actvar[dyd.n_actvar++] = new Vardesc(reg);
 	}
 
@@ -1089,7 +1091,8 @@ public class LexState {
 	  Prototype clp;
 	  Prototype f = fs.f;  /* prototype of current function */
 	  if (f.p == null || fs.np >= f.p.length) {
-	    f.p = LuaC.realloc(f.p, Math.max(1, fs.np * 2));
+		  int max_rhs = fs.np * 2;
+		  f.p = LuaC.realloc(f.p, 1 > max_rhs ? 1 : max_rhs);  // XOWA.PERF:Math.max(1, fs.np * 2); DATE:2014-08-13
 	  }
 	  f.p[fs.np++] = clp = new Prototype();
 	  return clp;

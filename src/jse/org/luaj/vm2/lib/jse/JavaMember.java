@@ -72,7 +72,9 @@ class JavaMember extends VarArgFunction {
 			for ( int i=0; i<a.length; i++ )
 				a[i] = fixedargs[i].coerce( args.arg(i+1) );
 		} else {
-			int n = Math.max(fixedargs.length,args.narg());
+			int max_lhs = fixedargs.length;
+			int max_rhs = args.narg();					
+			int n = max_lhs > max_rhs ? max_lhs : max_rhs; // XOWA.PERF:Math.max(fixedargs.length,args.narg()); DATE:2014-08-13
 			a = new Object[n];
 			for ( int i=0; i<fixedargs.length; i++ )
 				a[i] = fixedargs[i].coerce( args.arg(i+1) );

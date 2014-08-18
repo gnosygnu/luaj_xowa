@@ -498,7 +498,8 @@ public class DebugLib extends TwoArgFunction {
 
 		private CallFrame pushcall() {
 			if (calls >= frame.length) {
-				int n = Math.max(4, frame.length * 3 / 2);
+				int max_rhs = frame.length * 3 / 2;		// NOTE: even if result was 4.5, result of Math.max gets casted to integer n 
+				int n = 4 > max_rhs ? 4 : max_rhs;		// XOWA.PERF:Math.max(1, frame.length * 3 / 2); DATE:2014-08-13
 				CallFrame[] f = new CallFrame[n];
 				System.arraycopy(frame, 0, f, 0, frame.length);
 				for (int i = frame.length; i < n; ++i)

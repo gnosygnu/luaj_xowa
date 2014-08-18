@@ -466,11 +466,11 @@ public class StringLib extends TwoArgFunction {
 		public void format(Buffer buf, String fmt, double v) {
 			// buf.append( String.valueOf( x ) );
 			if (fmt.startsWith("%0."))
-				fmt = "%" + fmt.substring(2);				// remove leading 0, else MissingFormatWidthException
+				fmt = "%" + fmt.substring(2);					// XOWA: remove leading 0, else MissingFormatWidthException
 			int fmt_len = fmt.length();
-			if (fmt_len > 1 && fmt.charAt(fmt_len - 2) == '.')	// penultimmate char has "."
-				fmt = fmt.substring(0, fmt_len - 1) + "0" + fmt.charAt(fmt_len - 1);	// add trailing 0, else UnknownFormatConversionException; EX: "02.f" -> "02.0f" 
-			buf.append( String.format(fmt, v) );	// call String.format
+			if (fmt_len > 1 && fmt.charAt(fmt_len - 2) == '.')	// XOWA: penultimmate char has "."
+				fmt = fmt.substring(0, fmt_len - 1) + "0" + fmt.charAt(fmt_len - 1);	// XOWA: add trailing 0, else UnknownFormatConversionException; EX: "02.f" -> "02.0f" 
+			buf.append( String.format(fmt, v) );				// XOWA: call String.format
 		}		
 		public void format(Buffer buf, LuaString s) {
 			int nullindex = s.indexOf( (byte)'\0', 0 );
@@ -734,10 +734,13 @@ public class StringLib extends TwoArgFunction {
 		LuaString pat = args.checkstring( 2 );
 		int init = args.optint( 3, 1 );
 		
+		int s_len = s.m_length;
 		if ( init > 0 ) {
-			init = Math.min( init - 1, s.length() );
+			int min_lhs = init - 1;
+			init = min_lhs < s_len ? min_lhs : s_len;	// XOWA.PERF:Math.min( init - 1, s.length() ); DATE:2014-08-13 
 		} else if ( init < 0 ) {
-			init = Math.max( 0, s.length() + init );
+			int max_rhs = s_len + init;
+			init = 0 > max_rhs ? 0 : max_rhs;			// XOWA.PERF:Math.max( 0, s_len + init ); DATE:2014-08-13
 		}
 		
 		boolean fastMatch = find && ( args.arg(4).toboolean() || pat.indexOfAny( SPECIALS ) == -1 );
@@ -768,7 +771,7 @@ public class StringLib extends TwoArgFunction {
 						return ms.push_captures( true, soff, res );
 					}
 				}
-			} while ( soff++ < s.length() && !anchor );
+			} while ( soff++ < s_len && !anchor );	// NOTE: soff++ will force evaluation one more time at end of string; EX: soff = 0; s_len = 1; s_off++ < s_len -> true and soff will be 1
 		}
 		return NIL;
 	}
@@ -970,7 +973,7 @@ public class StringLib extends TwoArgFunction {
 		
 		static boolean match_class( int c, int cl ) {
 			final char lcl = Character.toLowerCase( (char) cl );
-			int cdata = CHAR_TABLE[c];
+			int cdata = c == -1 ? 0 : CHAR_TABLE[c];	// XOWA: handle c == -1 else bounds error; note that match passes in -1 deliberately: "int previous = ( soffset == 0 ) ? -1..."; DATE:2014-08-14 
 			
 			boolean res;
 			switch ( lcl ) {
@@ -1043,7 +1046,7 @@ public class StringLib extends TwoArgFunction {
 					if ( poffset + 1 == p.length() )
 						error("malformed pattern (ends with '%')");
 					switch ( p.luaByte( poffset + 1 ) ) {
-					case 'b':
+					case 'b':						
 						soffset = matchbalance( soffset, poffset + 2 );
 						if ( soffset == -1 ) return -1;
 						poffset += 4;
@@ -1056,7 +1059,7 @@ public class StringLib extends TwoArgFunction {
 						int ep = classend( poffset );
 						int previous = ( soffset == 0 ) ? -1 : s.luaByte( soffset - 1 );
 						if ( matchbracketclass( previous, poffset, ep - 1 ) ||
-							 matchbracketclass( s.luaByte( soffset ), poffset, ep - 1 ) )
+							 (soffset < s.m_length && matchbracketclass( s.luaByte( soffset ), poffset, ep - 1 ) ))	// XOWA: added bounds check; DATE:2014-08-14
 							return -1;
 						poffset = ep;
 						continue;
@@ -1115,13 +1118,14 @@ public class StringLib extends TwoArgFunction {
 			}
 			return -1;
 		}
-		
+
 		int min_expand( int soff, int poff, int ep ) {
+			int s_len = s.m_length;	// XOWA: cache string length; DATE: 2014-08-13
 			for ( ;; ) {
 				int res = match( soff, ep + 1 );
 				if ( res != -1 )
 					return res;
-				else if ( soff < s.length() && singlematch( s.luaByte( soff ), poff, ep ) )
+				else if ( soff < s_len && singlematch( s.luaByte( soff ), poff, ep ) )
 					soff++;
 				else return -1;
 			}
@@ -1165,6 +1169,7 @@ public class StringLib extends TwoArgFunction {
 			if ( poff == plen || poff + 1 == plen ) {
 				error( "unbalanced pattern" );
 			}
+			if (soff >= s.m_length) return -1;	// XOWA: check bounds; EX:string_match('a', '^(.) ?%b()'); DATE:2014-08-13
 			if ( s.luaByte( soff ) != p.luaByte( poff ) )
 				return -1;
 			else {

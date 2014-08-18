@@ -137,7 +137,8 @@ public class LuaTable extends LuaValue implements Metatable {
 	 */
 	public LuaTable(Varargs varargs, int firstarg) {
 		int nskip = firstarg-1;
-		int n = Math.max(varargs.narg()-nskip,0);
+		int max_lhs = varargs.narg()-nskip;
+		int n = max_lhs > 0 ? max_lhs : 0;// XOWA.PERF:Math.max(varargs.narg()-nskip,0); DATE:2014-08-13
 		presize( n, 1 );
 		set(N, valueOf(n));
 		for ( int i=1; i<=n; i++ )
@@ -562,8 +563,8 @@ public class LuaTable extends LuaValue implements Metatable {
 		for ( int bit = 0; bit < 31; ++bit ) {
 			if ( i > array_len )
 				break;
-			int bitted_1 = 1 << bit;
-			int j = array_len < bitted_1 ? array_len : bitted_1; // XOWA.PERF: was "Math.min(array_len, 1 << bit)" which showed up as slow on VisualVM; DATE:2014-08-08
+			int min_rhs = 1 << bit;
+			int j = array_len < min_rhs ? array_len : min_rhs; // XOWA.PERF:Math.min(array_len, 1 << bit); showed up as slow on VisualVM; DATE:2014-08-08
 			int c = 0;
 			while ( i <= j ) {
 				if ( array[ i++ - 1 ] != null )
@@ -671,18 +672,19 @@ public class LuaTable extends LuaValue implements Metatable {
 		if ( newKey > 0 && newKey <= newArraySize ) {
 			movingToArray--;
 		}
-		if (newArraySize != oldArray.length) {
+		int oldArray_len = oldArray.length;
+		if (newArraySize != oldArray_len) {
 			newArray = new LuaValue[newArraySize];
-			if (newArraySize > oldArray.length) {
-				for (int i = log2(oldArray.length + 1), j = log2(newArraySize) + 1; i < j; ++i) {
+			if (newArraySize > oldArray_len) {
+				for (int i = log2(oldArray_len + 1), j = log2(newArraySize) + 1; i < j; ++i) {
 					movingToArray += nums[i];
 				}
-			} else if (oldArray.length > newArraySize) {
-				for (int i = log2(newArraySize + 1), j = log2(oldArray.length) + 1; i < j; ++i) {
+			} else if (oldArray_len > newArraySize) {
+				for (int i = log2(newArraySize + 1), j = log2(oldArray_len) + 1; i < j; ++i) {
 					movingToArray -= nums[i];
 				}
 			}
-			System.arraycopy(oldArray, 0, newArray, 0, Math.min(oldArray.length, newArraySize));
+			System.arraycopy(oldArray, 0, newArray, 0, oldArray_len < newArraySize ? oldArray_len : newArraySize);	// XOWA.PERF:Math.min(oldArray_len, newArraySize); DATE:2014-08-13
 		} else {
 			newArray = array;
 		}
