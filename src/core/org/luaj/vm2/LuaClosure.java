@@ -231,18 +231,18 @@ public class LuaClosure extends LuaFunction {
 					
 				case Lua.OP_GETTABUP: /*	A B C	R(A) := UpValue[B][RK(C)]			*/
 					// stack[a] = upValues[i>>>23].getValue().get((c=(i>>14)&0x1ff)>0xff? k[c&0x0ff]: stack[c]);
-					// HACK: handle deprecated "arg" for "..."
+					// XOWA:HACK: handle deprecated "arg" for "..."
 					int OP_GETTABUP_c = (i>>14)&0x1ff;
 					boolean OP_GETTABUP_b = OP_GETTABUP_c>0xff;
 					LuaValue OP_GETTABUP_idx = OP_GETTABUP_b ? k[OP_GETTABUP_c&0x0ff]: stack[OP_GETTABUP_c];
 					stack[a] = upValues[i>>>23].getValue().get(OP_GETTABUP_idx);
-					// HACK: handle deprecated "arg"
 					if (	p.is_vararg == 1
-						&&	stack[a] == NIL
+					//	&&	stack[a] == NIL			// commented; DATE:2014-08-18
 						&& 	OP_GETTABUP_b
-						)
+						) {
 						if	("arg".equals(OP_GETTABUP_idx.tojstring()))
-								stack[a] = new LuaTable(varargs);
+							stack[a] = new LuaTable(varargs);
+					}
 					continue;
 	                
 				case Lua.OP_GETTABLE: /*	A B C	R(A):= R(B)[RK(C)]				*/
