@@ -774,9 +774,9 @@ public class LuaString extends LuaValue {
 	 * @return double value if conversion is valid, or Double.NaN if not 
 	 */
 	public double scannumber() {
-		int i=m_offset,j=m_offset+m_length;
-
-		// trim ws
+		int i = m_offset, j = m_offset + m_length;
+		
+		// XOWA:trim ws
 		int idx = i;
 		while (idx < j) {
 			switch (m_bytes[idx]) {
@@ -803,10 +803,19 @@ public class LuaString extends LuaValue {
 		}
 //		while ( i<j && m_bytes[i]==' ' ) ++i;
 //		while ( i<j && m_bytes[j-1]==' ' ) --j;
-		if ( i>=j )
+		if (i >= j)
 			return Double.NaN;
-		if ( m_bytes[i]=='0' && i+1<j && (m_bytes[i+1]=='x'||m_bytes[i+1]=='X'))
-			return scanlong(16, i+2, j);
+		if ( 	i + 1 < j
+			&& 	m_bytes[i] == '0'
+			) {
+			byte next_byte = m_bytes[i+1];
+			if (next_byte == 'x' || next_byte == 'X') {
+				return i + 2 < j	// XOWA: bounds check; DATE:2014-08-26
+					? scanlong(16, i+2, j)
+					: Double.NaN 
+					;
+			}
+		}
 		double l = scanlong(10, i, j);
 		return Double.isNaN(l)? scandouble(i,j): l;
 	}
