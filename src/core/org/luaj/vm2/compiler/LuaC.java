@@ -99,7 +99,7 @@ public class LuaC extends Lua implements Globals.Compiler, Globals.Loader {
 	
 	public static final int MAXSTACK = 250;
 	static final int LUAI_MAXUPVAL = 0xff;
-	static final int LUAI_MAXVARS = 200;
+	static final int LUAI_MAXVARS = 249;	// XOWA: was 200; REF:http://www.lua.org/source/5.1/luaconf.h.html; LUAI_MAXVARS is the maximum number of local variables per function (must be smaller than 250).
 	static final int NO_REG		 = MAXARG_A;
 	
 
