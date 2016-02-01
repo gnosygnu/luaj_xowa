@@ -1058,8 +1058,8 @@ public class StringLib extends TwoArgFunction {
 						}
 						int ep = classend( poffset );
 						int previous = ( soffset == 0 ) ? -1 : s.luaByte( soffset - 1 );
-						if ( matchbracketclass( previous, poffset, ep - 1 ) ||
-							 (soffset < s.m_length && matchbracketclass( s.luaByte( soffset ), poffset, ep - 1 ) ))	// XOWA: added bounds check; DATE:2014-08-14
+						if ( 							 matchbracketclass( previous				, poffset, ep - 1 ) ||
+							 (soffset < s.m_length && 	!matchbracketclass( s.luaByte( soffset )	, poffset, ep - 1 ) ))	// XOWA: (1) added bounds check of "soffset < s.m_length"; DATE:2014-08-14; (2) fixed by changing from "matchbracketclass" to "!matchbracketclass"; PAGE:en.w:A; DATE:2016-01-28 
 							return -1;
 						poffset = ep;
 						continue;

@@ -22,6 +22,7 @@
 package org.luaj.vm2;
 
 import java.lang.ref.WeakReference;
+import java.sql.Date;
 import java.util.Vector;
 
 /**
@@ -390,6 +391,7 @@ public class LuaTable extends LuaValue implements Metatable {
 				if ( hash.length == 0 )
 					error( "invalid key to 'next'" );
 				i = hashSlot( key );
+				// System.out.println(key.toString() + " " + i + " " + key.hashCode());
 				boolean found = false;
 				for ( Slot slot = hash[i]; slot != null; slot = slot.rest() ) {
 					if ( found ) {
@@ -483,7 +485,7 @@ public class LuaTable extends LuaValue implements Metatable {
 		}
 	}
 
-	public static int hashpow2( int hashCode, int mask ) {
+	private static int hashpow2( int hashCode, int mask ) {
 		return hashCode & mask;
 	}
 
@@ -498,6 +500,7 @@ public class LuaTable extends LuaValue implements Metatable {
 	 * @return the slot index
 	 */
 	public static int hashSlot( LuaValue key, int hashMask ) {
+
 		switch ( key.type() ) {
 		case TNUMBER:
 		case TTABLE:

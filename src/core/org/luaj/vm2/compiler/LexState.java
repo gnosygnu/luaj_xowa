@@ -231,18 +231,29 @@ public class LexState {
 	void save(int c, boolean c_might_be_utf8) {
 		int bytes_len = c_might_be_utf8 ? LuaString.Utf8_Len_of_char_by_1st_byte((byte)c) : 1;
 		if (bytes_len > 1) {	// c is 1st byte of utf8 multi-byte sequence; read required number of bytes and convert to char; EX: left-arrow is serialized in z as 226,134,144; c is currently 226; read 134 and 144 and convert to left-arrow
-			temp_bry[0] = (byte)c;
-			for (int i = 1; i < bytes_len; i++) {
-				nextChar();
-				temp_bry[i] = (byte)current; 
+			synchronized (temp_bry) {
+				temp_bry[0] = (byte)c;
+				for (int i = 1; i < bytes_len; i++) {
+					nextChar();
+					temp_bry[i] = (byte)current; 
+				}
+				c = LuaString.Utf16_Decode_to_int(temp_bry, 0);			
 			}
-			c = LuaString.Utf16_Decode_to_int(temp_bry, 0);			
 		}
 		if ( buff == null || nbuff + 1 > buff.length )
 			buff = LuaC.realloc( buff, nbuff*2+1 );
-		buff[nbuff++] = (char)c;
+		if (bytes_len < 3)	// XOWA: item is 2 bytes or less; will always fit in 1 slot of char[]
+			buff[nbuff++] = (char)c;
+		else {				// XOWA: item is 3 bytes or 4 bytes; may take up 2 slots of char[]; DATE:2016-01-21
+			nbuff += Character.toChars(c, buff, nbuff);
+			// TODO: convert to hand-coded version; need to write tests
+			// LuaString.Utf16_Surrogate_split(c, utf_16_split);
+			// buff[nbuff++] = (char)utf_16_split[0];
+			// buff[nbuff++] = (char)utf_16_split[1];
+		}
 	}
-	private static byte[] temp_bry = new byte[6];
+	// private static final int[] utf_16_split = new int[2]; 
+	private static final byte[] temp_bry = new byte[6], temp_backslash_escaped_bry = new byte[6];
 
 	String token2str( int token ) {
 		if ( token < FIRST_RESERVED ) {
@@ -561,16 +572,56 @@ public class LexState {
 				default: {
 					if (!isdigit(current))
 						save_and_next(); /* handles \\, \", \', and \? */
-					else { /* \xxx */
-						int i = 0;
-						c = 0;
-						do {
-							c = 10 * c + (current - '0');
-							nextChar();
-						} while (++i < 3 && isdigit(current));
-						if (c > UCHAR_MAX)
-							lexerror("escape sequence too large", TK_STRING);
-						save(c, false);	// NOTE: specify that c is integer and does not need conversion; EX: \128 -> 128 -> (char)128, not Utf8_encode(128)  
+					else { /* \xxx */ // parse backslash-escaped number to byte; EX:'\239' to 239; DATE:2016-01-28
+						int utf8_idx = 0, utf8_len = -1;
+						synchronized (temp_backslash_escaped_bry) {// THREAD.member_variable:note that \123 sequences should be rare
+							while (true) {
+								c = 0;
+								// first parse the string to an int; EX: '\239' to 239
+								int num_idx = 0;
+								do {
+									c = 10 * c + (current - '0');
+									nextChar();
+								} 	while (++num_idx < 3 && isdigit(current));
+								if (c > UCHAR_MAX) lexerror("escape sequence too large", TK_STRING);
+							
+								// now check if multi-byte utf8 sequence
+								byte b = (byte)c;
+								if (utf8_idx == 0) {			// 1st number; EX: in '\100\101\102', '\100'
+									if (current == '\\') {		// consecutive escaped numbers; EX: '\123\124'; NOTE: can be either single utf8 ('\239\191')or multiple ascii chars ('\100\101')
+										utf8_len = LuaString.Utf8_Len_of_char_by_1st_byte(b);
+										if (utf8_len == 1) {	// 1st is a7; EX: '\100\101'
+											save(c, false);		// just save it and stop
+											break;
+										}
+										else {					// 1st is u8; EX: '\239\191'
+											temp_backslash_escaped_bry[utf8_idx++] = b;
+											nextChar();			// skip '\'; NOTE: this relies on next character being a digit, which should be true based on LuaString.Utf8_Len_of_char_by_1st_byte(b);
+											if (!isdigit(current)) lexerror("multibyte utf8 sequence must have digit after backslash", TK_STRING);
+											continue;									
+										}
+									}
+									else						// escaped number followed by unescaped; EX: '\123a'
+										save(c, false);			// just save it and stop
+									break;
+								}
+								else {							// nth number; EX: in '\100\101\102', '\101' or '\102'
+									temp_backslash_escaped_bry[utf8_idx++] = b;
+									if (utf8_idx == utf8_len) {	// reached end of expd utf8 sequence
+										c = LuaString.Utf16_Decode_to_int(temp_backslash_escaped_bry, 0);
+										if (buff == null || nbuff + 1 > buff.length)	// NOTE: need to do same work as save below, because save only takes a7 ints (< 128), not u8 ints; EX: 8601
+											buff = LuaC.realloc( buff, nbuff*2+1 );
+										nbuff += Character.toChars(c, buff, nbuff);
+										// DBG: System.out.println(Integer.toString(c) + ":" + new String(buff, 0, nbuff));
+										break;
+									}
+									if (current != '\\') lexerror("multibyte utf8 sequence must have backslash after last digit", TK_STRING);
+									nextChar();					// skip '\'
+									if (!isdigit(current)) lexerror("multibyte utf8 sequence must have digit after backslash", TK_STRING);
+									if (utf8_idx > 4) lexerror("utf8 sequence can not be longer than 4 bytes", TK_STRING);								
+								}
+							}
+						}
 					}
 					continue;
 				}

@@ -538,7 +538,7 @@ public class OsLib extends TwoArgFunction {
 			c.set(Calendar.YEAR, table.get("year").checkint());
 			c.set(Calendar.MONTH, table.get("month").checkint()-1);
 			c.set(Calendar.DAY_OF_MONTH, table.get("day").checkint());
-			c.set(Calendar.HOUR, table.get("hour").optint(12));
+			c.set(Calendar.HOUR_OF_DAY, table.get("hour").optint(12));	// XOWA:LUAJ.BUG: was Calendar.HOUR which will be off by 12 hours depending on current time; REF:http://www.tutorialspoint.com/c_standard_library/c_function_mktime.htm DATE:2016-01-21 
 			c.set(Calendar.MINUTE, table.get("min").optint(0));
 			c.set(Calendar.SECOND, table.get("sec").optint(0));
 			c.set(Calendar.MILLISECOND, 0);

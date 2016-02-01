@@ -168,6 +168,7 @@ public class LuaString extends LuaValue {
 //		for ( int i=0; i<len; i++ )
 //			b[i] = (byte) chars[i + off];
 //		return valueOf(b, 0, len);
+		int j = 1;
 		int bry_len = 0;
 		for (int i = 0; i < len; i++) {	// iterate over chars to sum all single / multi-byte chars
 			int b_len = LuaString.Utf16_Len_by_char((int)(chars[i + off]));
@@ -179,7 +180,7 @@ public class LuaString extends LuaValue {
 	    int i = 0;
 	    while (i < len) {
 	      char c = chars[i + off];
-	      int b_len = Utf16_Encode_char(c, chars, i, bry, bry_idx);
+	      int b_len = Utf16_Encode_char(c, chars, i, bry, bry_idx); // XOWA: changed to "i + off" to get current position DATE:2016-01-21
 	      bry_idx += b_len;
 	      i += b_len == 4 ? 2 : 1;		// 4 bytes; surrogate pair; skip next char;
 	    }
@@ -1087,5 +1088,9 @@ public class LuaString extends LuaValue {
 	}
 	private static int Utf16_Surrogate_merge(int hi, int lo) { // REF: http://perldoc.perl.org/Encode/Unicode.html
 		return 0x10000 + (hi - 0xD800) * 0x400 + (lo - 0xDC00);
+	}
+	public static void Utf16_Surrogate_split(int v, int[] tmp_ary) {
+		tmp_ary[0] = ((v - 0x10000) / 0x400 + 0xD800);
+		tmp_ary[1] = ((v - 0x10000) % 0x400 + 0xDC00);
 	}
 }
