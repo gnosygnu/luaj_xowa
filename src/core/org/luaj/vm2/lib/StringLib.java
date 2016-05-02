@@ -200,6 +200,7 @@ public class StringLib extends TwoArgFunction {
 	 * If the pattern has captures, then in a successful match the captured values 
 	 * are also returned, after the two indices.
 	 */
+	public static Varargs find__test( Varargs args ) {return find(args);}
 	static Varargs find( Varargs args ) {
 		return str_find_aux( args, true );
 	}
@@ -803,7 +804,7 @@ public class StringLib extends TwoArgFunction {
 	static {
 		CHAR_TABLE = new byte[256];
 		
-		for ( int i = 0; i < 256; ++i ) {
+		for ( int i = 0; i < 128; ++i ) {	// XOWA: was "i < 256"; NOTE: either lua C defines isalpha as ASCII or Wikimedia uses English locale lua binaries; DATE:2016-04-17
 			final char c = (char) i;
 			CHAR_TABLE[i] = (byte)( ( Character.isDigit( c ) ? MASK_DIGIT : 0 ) |
 							( Character.isLowerCase( c ) ? MASK_LOWERCASE : 0 ) |
@@ -990,9 +991,8 @@ public class StringLib extends TwoArgFunction {
 			default: return cl == c;
 			}
 			return ( lcl == cl ) ? res : !res;
-		}
-		
-		boolean matchbracketclass( int c, int poff, int ec ) {
+		}		
+		boolean matchbracketclass(int c, int poff, int ec) {
 			boolean sig = true;
 			if ( p.luaByte( poff + 1 ) == '^' ) {
 				sig = false;
@@ -1104,7 +1104,6 @@ public class StringLib extends TwoArgFunction {
 				}
 			}
 		}
-		
 		int max_expand( int soff, int poff, int ep ) {
 			int i = 0;
 			while ( soff + i < s.length() &&

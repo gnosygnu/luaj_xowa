@@ -23,6 +23,7 @@ package org.luaj.vm2;
 
 import java.lang.ref.WeakReference;
 import java.sql.Date;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -372,7 +373,7 @@ public class LuaTable extends LuaValue implements Metatable {
 	public int rawlen() { 
 		return length(); 
 	}
-
+	
 	/**
 	 * Get the next element after a particular key in the table 
 	 * @return key,value or nil

@@ -240,7 +240,11 @@ public class LexState {
 				c = LuaString.Utf16_Decode_to_int(temp_bry, 0);			
 			}
 		}
-		if ( buff == null || nbuff + 1 > buff.length )
+		int buff_len = buff.length;
+		if ( 	buff == null
+			|| 	nbuff + 1 > buff_len 
+			|| 	(bytes_len > 3 && nbuff + 2 > buff.length)	// XOWA: handle 2-len chars at end of bfr; PAGE:one DATE:2016-04-27
+			)
 			buff = LuaC.realloc( buff, nbuff*2+1 );
 		if (bytes_len < 3)	// XOWA: item is 2 bytes or less; will always fit in 1 slot of char[]
 			buff[nbuff++] = (char)c;
