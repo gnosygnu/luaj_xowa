@@ -168,7 +168,6 @@ public class LuaString extends LuaValue {
 //		for ( int i=0; i<len; i++ )
 //			b[i] = (byte) chars[i + off];
 //		return valueOf(b, 0, len);
-		int j = 1;
 		int bry_len = 0;
 		for (int i = 0; i < len; i++) {	// iterate over chars to sum all single / multi-byte chars
 			int b_len = LuaString.Utf16_Len_by_char((int)(chars[i + off]));
@@ -302,13 +301,15 @@ public class LuaString extends LuaValue {
 	public int strcmp(LuaString rhs) {
 		int lhs_idx = 0, rhs_idx = 0;
 		while (lhs_idx < m_length && rhs_idx < rhs.m_length) {
-			Utf16_Decode_to_int(    m_bytes,     m_offset + lhs_idx, lhs_tmp);
-			Utf16_Decode_to_int(rhs.m_bytes, rhs.m_offset + rhs_idx, rhs_tmp);
-			int comp = lhs_tmp.Codepoint - rhs_tmp.Codepoint;
-			if (comp != 0)
-				return comp;
-			lhs_idx += lhs_tmp.Len;
-			rhs_idx += rhs_tmp.Len;
+			synchronized (lhs_tmp) {
+				Utf16_Decode_to_int(    m_bytes,     m_offset + lhs_idx, lhs_tmp);
+				Utf16_Decode_to_int(rhs.m_bytes, rhs.m_offset + rhs_idx, rhs_tmp);
+				int comp = lhs_tmp.Codepoint - rhs_tmp.Codepoint;
+				if (comp != 0)
+					return comp;
+				lhs_idx += lhs_tmp.Len;
+				rhs_idx += rhs_tmp.Len;
+			}
 		}
 		return m_length - rhs.m_length;
 	}

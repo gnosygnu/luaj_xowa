@@ -533,7 +533,11 @@ public class LuaClosure extends LuaFunction {
 	String errorHook(String msg, int level) {
 		if (globals == null ) return msg;
 		final LuaThread r = globals.running;
-		if (r.errorfunc == null)
+		// XOWA: Scribunto overrides r.errorfunc in MWServer.lua which will cause traceback to be literally "table: some_hex_address"; DATE:2016-09-09
+		// probably a cleaner way to do this in MWServer.lua, but this seems to be LuaJ -specific behavior; SEE: https://www.lua.org/source/5.1/lfunc.c.html
+		String errorfunc_str = r.errorfunc == null ? "" : r.errorfunc.tojstring();
+		if (	r.errorfunc == null
+			|| 	errorfunc_str.contains("MWServer.lua"))
 			return globals.debuglib != null?
 				msg + "\n" + globals.debuglib.traceback(level):
 				msg;
@@ -553,7 +557,7 @@ public class LuaClosure extends LuaFunction {
 			+ (p.lineinfo != null && pc >= 0 && pc < p.lineinfo.length? String.valueOf(p.lineinfo[pc]): "?");
 		String err_msg = le.getMessage();
 		le.traceback = errorHook(err_msg, le.level);
-		le.traceback = err_msg;	// traceback is often meaningless string: "table: 7e96cc33"; not sure why; note that Scribunto only gets traceback, so need a better error msg; for now, force traceback to be error_msg
+		// le.traceback = err_msg;	// TOMBSTONE: no longer needed; DATE:2016-09-09; traceback is often meaningless string: "table: 7e96cc33"; not sure why; note that Scribunto only gets traceback, so need a better error msg; for now, force traceback to be error_msg
 	}
 	
 	private UpValue findupval(LuaValue[] stack, short idx, UpValue[] openups) {
