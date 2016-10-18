@@ -91,7 +91,7 @@ class JavaMethod extends JavaMember {
 	}
 	
 	LuaValue invokeMethod(Object instance, Varargs args) {
-		Object[] a = convertArgs(args);
+		Object[] a = convertArgsWithParams(method, args);	// XOWA:handle varargs; DATE:2016-10-15
 		try {
 			return CoerceJavaToLua.coerce( method.invoke(instance, a) );
 		} catch (InvocationTargetException e) {

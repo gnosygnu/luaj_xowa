@@ -615,7 +615,7 @@ public class StringLib extends TwoArgFunction {
 				break;
 			if ( anchor )
 				break;
-			if (soffset >= srclen) break; // assert soffset is in bounds, else will throw ArrayIndexOutOfBounds exception;
+			if (soffset > srclen) break; // XOWA:assert soffset is in bounds, else will throw ArrayIndexOutOfBounds exception; DATE:2016-09-20
 		}
 		lbuf.append( src.substring( soffset, srclen ) );
 		return varargsOf(lbuf.tostring(), valueOf(n));

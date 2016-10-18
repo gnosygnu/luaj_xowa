@@ -308,10 +308,18 @@ public class LuaTable extends LuaValue implements Metatable {
 		else if (pos > n)
 			return NONE;
 		LuaValue v = rawget(pos);
-		for ( LuaValue r=v; !r.isnil(); ) {
+
+		// XOWA:fails to handle removal of 1st element if it is nil; DATE:2016-10-18 
+//		for ( LuaValue r=v; !r.isnil(); ) {
+//			r = rawget(pos+1);
+//			rawset(pos++, r);
+//		}
+		LuaValue r = v;
+		do {
 			r = rawget(pos+1);
 			rawset(pos++, r);
-		}
+		} while (!r.isnil());
+		
 		return v.isnil()? NONE: v;
 	}
 

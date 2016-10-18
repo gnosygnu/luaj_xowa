@@ -1055,7 +1055,9 @@ public class LuaValue extends Varargs {
 	 * @param expected String naming the type that was expected
 	 * @throws LuaError in all cases
 	 */
-	protected LuaValue argerror(String expected) { throw new LuaError("bad argument: "+expected+" expected, got "+typename()); }
+	protected LuaValue argerror(String expected) { 
+		throw new LuaError("bad argument: "+expected+" expected, got "+typename()); 
+		}
 	
 	/** 
 	 * Throw a {@link LuaError} indicating an invalid argument was supplied to a function

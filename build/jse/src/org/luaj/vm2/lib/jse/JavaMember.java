@@ -21,6 +21,9 @@
 ******************************************************************************/
 package org.luaj.vm2.lib.jse;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 import org.luaj.vm2.lib.jse.CoerceLuaToJava.Coercion;
@@ -82,5 +85,35 @@ class JavaMember extends VarArgFunction {
 				a[i] = varargs.coerce( args.arg(i+1) );
 		}
 		return a;
+	}
+	protected Object[] convertArgsWithParams(Method method, Varargs args) {	// handle varargs in Java; "int, int, int..." -> new Object[int, int, new int[]] x> new Object[int, int, int, int, int]; DATE:2016-10-15   
+		Object[] rv;
+		int fixed_len = fixedargs.length;
+		// no varargs; just return Object[] of all fixed args; EX: "int, int, int" -> "new Object[] {int, int, int};"
+		if (varargs == null) {
+			rv = new Object[fixed_len];
+			for (int i = 0; i < fixed_len; ++i)
+				rv[i] = fixedargs[i].coerce(args.arg(i + 1));	// +1=Base1
+		}
+		// varargs exists; assuming luaj varargs detection is right
+		else {
+			int total_len = args.narg();
+			int vargs_len = total_len - fixed_len;
+			
+			// instantiate array; note that this assumes luaj varargs detection is correct, else out of bounds error 
+			Class vargs_type = method.getParameterTypes()[fixed_len];	// last arg is varargs
+			Object vargs_ary = Array.newInstance(vargs_type.getComponentType(), vargs_len);
+			for (int i = 0; i < vargs_len; ++i) {
+				Array.set(vargs_ary, i, varargs.coerce(args.arg(fixed_len + i + 1)));
+			}
+
+			// EX: "int, int, int..." and (1, 2, 10, 11, 12) will have fixed_len of 2 and total_len of 5
+			rv = new Object[fixed_len + 1];
+			// fill fixed args
+			for (int i = 0; i < fixed_len; ++i)
+				rv[i] = fixedargs[i].coerce(args.arg(i + 1));	// +1=Base1
+			rv[fixed_len] = vargs_ary;
+		}
+		return rv;
 	}
 }

@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.luaj.vm2.LuaBoolean;
+import org.luaj.vm2.LuaInteger;
+import org.luaj.vm2.LuaNumber;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
@@ -255,6 +258,18 @@ public class CoerceLuaToJava {
 				return value.touserdata();
 			case LuaValue.TNIL:
 				return null;
+			case LuaValue.TBOOLEAN:// XOWA: else fails during convertArgs(); DATE:2016-10-15
+				return ((LuaBoolean)value).toboolean();
+			case LuaValue.TSTRING:// XOWA: else fails during convertArgs(); DATE:2016-10-15
+				return value.tojstring();
+			case LuaValue.TNUMBER:// XOWA: else fails during convertArgs(); DATE:2016-10-15
+				LuaNumber number = ((LuaNumber)value);
+				if 		(number.isint())
+					return number.toint();
+				else if (number.islong())
+					return number.tolong(); 
+				else
+					return number.todouble(); 
 			default: 
 				return null;
 			}
