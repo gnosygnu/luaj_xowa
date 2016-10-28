@@ -153,10 +153,18 @@ public class TableLib extends TwoArgFunction {
 	static class unpack extends VarArgFunction {
 		public Varargs invoke(Varargs args) {
 			LuaTable t = args.checktable(1);
+
+			// XOWA: handle nil args; REF:https://www.lua.org/source/5.1/lbaselib.c.html DATE:2016-10-28
+			LuaValue bgn_lua = args.arg(2);
+			int bgn = bgn_lua.isnil() ? 1 : bgn_lua.toint();
+			
+			LuaValue end_lua = args.arg(3);
+			int end = end_lua.isnil() ? t.maxn() : end_lua.toint();
+			
 			switch (args.narg()) {
 			case 1: return t.unpack();
-			case 2: return t.unpack(args.checkint(2));
-			default: return t.unpack(args.checkint(2), args.checkint(3));
+			case 2: return t.unpack(bgn);
+			default: return t.unpack(bgn, end);
 			}
 		}
 	}
