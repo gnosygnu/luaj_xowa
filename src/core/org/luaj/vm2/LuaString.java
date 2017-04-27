@@ -164,22 +164,27 @@ public class LuaString extends LuaValue {
 	 */
 	public static LuaString valueOf(char[] chars, int off, int len) {
 		// COMMENTED: does not handle 2+ byte chars; assumes 1 char = 1 byte
-//		byte[] b = new byte[len];
-//		for ( int i=0; i<len; i++ )
-//			b[i] = (byte) chars[i + off];
-//		return valueOf(b, 0, len);
+		//	byte[] b = new byte[len];
+		//	for ( int i=0; i<len; i++ )
+		//		b[i] = (byte) chars[i + off];
+		//	return valueOf(b, 0, len);
+		
+		// calc length of bry by looping char[] and summing length of each char
 		int bry_len = 0;
-		for (int i = 0; i < len; i++) {	// iterate over chars to sum all single / multi-byte chars
+		for (int i = 0; i < len; i++) {
 			int b_len = LuaString.Utf16_Len_by_char((int)(chars[i + off]));
-			if (b_len == 4) ++i;		// 4 bytes; surrogate pair; skip next char;
+			if (b_len == 4) 
+				++i;	// char is 4 bytes, so has 2-len (surrogate pair); skip next char;
 			bry_len += b_len;  
 		}
 		byte[] bry = new byte[bry_len];
+
+		// set bytes in byte[] by looping char[]
 		int bry_idx = 0;
 	    int i = 0;
 	    while (i < len) {
 	      char c = chars[i + off];
-	      int b_len = Utf16_Encode_char(c, chars, i, bry, bry_idx); // XOWA: changed to "i + off" to get current position DATE:2016-01-21
+	      int b_len = Utf16_Encode_char(c, chars, i + off, bry, bry_idx); // XOWA: changed to "i + off" to get current position; DATE:2016-01-21; DATE:2017-03-23
 	      bry_idx += b_len;
 	      i += b_len == 4 ? 2 : 1;		// 4 bytes; surrogate pair; skip next char;
 	    }

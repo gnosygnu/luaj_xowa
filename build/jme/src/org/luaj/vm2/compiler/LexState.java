@@ -228,36 +228,52 @@ public class LexState {
 	}
 
 	void save(int c) {save(c, true);}
-	void save(int c, boolean c_might_be_utf8) {
-		int bytes_len = c_might_be_utf8 ? LuaString.Utf8_Len_of_char_by_1st_byte((byte)c) : 1;
-		if (bytes_len > 1) {	// c is 1st byte of utf8 multi-byte sequence; read required number of bytes and convert to char; EX: left-arrow is serialized in z as 226,134,144; c is currently 226; read 134 and 144 and convert to left-arrow
-			synchronized (temp_bry) {
-				temp_bry[0] = (byte)c;
-				for (int i = 1; i < bytes_len; i++) {
-					nextChar();
-					temp_bry[i] = (byte)current; 
-				}
-				c = LuaString.Utf16_Decode_to_int(temp_bry, 0);			
+	void save(int orig_c, boolean c_might_be_utf8) {
+		// set some c vars
+		int c_int = orig_c;
+		byte c_byte = (byte)c_int;
+		
+		// get length of bytes for c; note that this length is in utf8 bytes, not in unicode bytes; EX: "em-dash" is 192 160 in UTF-8 but 160 in unicode 
+		int bytes_len = c_might_be_utf8 ? LuaString.Utf8_Len_of_char_by_1st_byte(c_byte) : 1;
+		
+		// XOWA: c is 1st byte of multi-byte sequence; read required number of bytes and convert to new_char; 
+		// EX: left-arrow is serialized in temp_bry as 226,134,144; c_int is currently 226; read 134 and 144 and convert c_int to left-arrow char
+		if (bytes_len > 1) {
+			// copy to temp_bry to send to LuaString.Utf16_Decode_to_int
+			byte[] temp_bry = new byte[6];
+			temp_bry[0] = c_byte;
+			for (int i = 1; i < bytes_len; i++) {
+				nextChar();
+				temp_bry[i] = (byte)current; 
 			}
+			// make new c based on sequence of bytes
+			c_int = LuaString.Utf16_Decode_to_int(temp_bry, 0);			
 		}
+		
+		// resize char_buffer if needed
+		int c_len = c_int < 65536 ? 1 : 2;    // NOTE: can probably also do (bytes_len < 4 ? 1 : 2) but c_int is always accurate 
 		int buff_len = buff.length;
-		if ( 	buff == null
-			|| 	nbuff + 1 > buff_len 
-			|| 	(bytes_len > 3 && nbuff + 2 > buff.length)	// XOWA: handle 2-len chars at end of bfr; PAGE:one DATE:2016-04-27
+		if ( 	buff == null                  // buffer is null
+			|| 	nbuff + c_len > buff_len      // XOWA: buffer doesn't have enough space; PAGE:one DATE:2016-04-27
 			)
-			buff = LuaC.realloc( buff, nbuff*2+1 );
-		if (bytes_len < 3)	// XOWA: item is 2 bytes or less; will always fit in 1 slot of char[]
-			buff[nbuff++] = (char)c;
-		else {				// XOWA: item is 3 bytes or 4 bytes; may take up 2 slots of char[]; DATE:2016-01-21
-			nbuff += Character.toChars(c, buff, nbuff);
-			// TODO: convert to hand-coded version; need to write tests
-			// LuaString.Utf16_Surrogate_split(c, utf_16_split);
-			// buff[nbuff++] = (char)utf_16_split[0];
-			// buff[nbuff++] = (char)utf_16_split[1];
+			buff = LuaC.realloc(buff, nbuff * 2 + 1);
+
+		// fill char_buffer with calculated chars
+		switch (c_len) {
+			// XOWA: char is 1-len; just set slot
+			case 1:
+				buff[nbuff++] = (char)c_int;
+				break;
+			// XOWA: char is 2-len; split int to surrogate c's; DATE:2017-03-23
+			case 2:
+				int[] utf_16_split = new int[2];
+				LuaString.Utf16_Surrogate_split(c_int, utf_16_split);
+				buff[nbuff++] = (char)utf_16_split[0];
+				buff[nbuff++] = (char)utf_16_split[1];
+				break;
 		}
-	}
-	// private static final int[] utf_16_split = new int[2]; 
-	private static final byte[] temp_bry = new byte[6], temp_backslash_escaped_bry = new byte[6];
+	} 
+	private static final byte[] temp_backslash_escaped_bry = new byte[6];
 
 	String token2str( int token ) {
 		if ( token < FIRST_RESERVED ) {
