@@ -238,9 +238,10 @@ public class LexState {
 		
 		// XOWA: c is 1st byte of multi-byte sequence; read required number of bytes and convert to new_char; 
 		// EX: left-arrow is serialized in temp_bry as 226,134,144; c_int is currently 226; read 134 and 144 and convert c_int to left-arrow char
+		byte[] temp_bry = null;
 		if (bytes_len > 1) {
 			// copy to temp_bry to send to LuaString.Utf16_Decode_to_int
-			byte[] temp_bry = new byte[6];
+			temp_bry = new byte[6];
 			temp_bry[0] = c_byte;
 			for (int i = 1; i < bytes_len; i++) {
 				nextChar();
@@ -251,7 +252,7 @@ public class LexState {
 		}
 		
 		// resize char_buffer if needed
-		int c_len = c_int < 65536 ? 1 : 2;    // NOTE: can probably also do (bytes_len < 4 ? 1 : 2) but c_int is always accurate 
+		int c_len = bytes_len < 4 ? 1 : 2;  
 		int buff_len = buff.length;
 		if ( 	buff == null                  // buffer is null
 			|| 	nbuff + c_len > buff_len      // XOWA: buffer doesn't have enough space; PAGE:one DATE:2016-04-27
@@ -266,6 +267,7 @@ public class LexState {
 				break;
 			// XOWA: char is 2-len; split int to surrogate c's; DATE:2017-03-23
 			case 2:
+//				System.out.println(c_int + "|" + (char)c_int);
 				int[] utf_16_split = new int[2];
 				LuaString.Utf16_Surrogate_split(c_int, utf_16_split);
 				buff[nbuff++] = (char)utf_16_split[0];

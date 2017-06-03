@@ -173,7 +173,8 @@ public class LuaString extends LuaValue {
 		int bry_len = 0;
 		for (int i = 0; i < len; i++) {
 			int b_len = LuaString.Utf16_Len_by_char((int)(chars[i + off]));
-			if (b_len == 4) ++i;	// char is 4 bytes, so has 2-len (surrogate pair); skip next char;
+			if (b_len == 4) 
+				++i;	// char is 4 bytes, so has 2-len (surrogate pair); skip next char;
 			bry_len += b_len;  
 		}
 		byte[] bry = new byte[bry_len];
