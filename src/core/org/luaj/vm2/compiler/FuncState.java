@@ -176,6 +176,10 @@ public class FuncState extends LuaC {
 				fs.markupval(v); /* local will be used as an upval */
 			return LexState.VLOCAL;
 		} else { /* not found at current level; try upvalues */
+			// XOWA:HACK: if "arg", do not search upvalues; mark as global; PAGE:en.w:Module:Wd; DATE:2017-06-11
+			if (fs.f.is_vararg == 1 && "arg".equals(n.toString())) {
+		          return LexState.VVOID;  				
+			}
 		    int idx = fs.searchupvalue(n);  /* try existing upvalues */
 		    if (idx < 0) {  /* not found? */
 		        if (singlevaraux(fs.prev, n, var, 0) == LexState.VVOID) /* try upper levels */

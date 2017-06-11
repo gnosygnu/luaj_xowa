@@ -1,0 +1,102 @@
+[33mcommit 71038fcaf8c775b5d29783cb89d3ba47db9f60fe[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Fri Jun 2 22:58:59 2017 -0400
+
+    Luaj: Format double numbers like sprintf
+
+[33mcommit 4e54e77d4e4fa42ca37c0dcc50784da2674b07b6[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Thu Apr 27 18:51:29 2017 -0400
+
+    Luaj: Add more logic for surrogate pairs (2-length chars)
+
+[33mcommit 731ab2850232a9f5a530f753979bdf73f3df35c1[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Fri Oct 28 10:18:26 2016 -0400
+
+    Luaj: Handle nil arguments for table.unpack
+
+[33mcommit 81d62ccbfb8fae9be5797324805964bcee2839fe[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Tue Oct 18 10:34:41 2016 -0400
+
+    Remove nil element from table when nil is 1st member
+
+[33mcommit d7c3906ac80f6627956ca2af5a8dc9d76deddd82[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Sun Sep 25 22:12:30 2016 -0400
+
+    'v3.9.4.1'
+
+[33mcommit 43d8870ef6a7b851d58f4fcfd2948b8c1fae4b1d[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Sun Sep 11 21:51:52 2016 -0400
+
+    'v3.9.2.1'
+
+[33mcommit 71cda875756907f8f36dd98097eb2accc29b107d[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Sun May 1 21:18:09 2016 -0400
+
+    'v3.5.1.1'
+
+[33mcommit 8298b02b184a95fc4a78fc1a5b35d20cc75ba29f[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Mon Feb 1 00:07:24 2016 -0500
+
+    v3.1.5.1
+
+[33mcommit a22fbfb4f3e9ec1cf7d49ddca77ab918c2cc380d[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Tue Oct 13 21:06:04 2015 -0400
+
+    v2.10.2.1
+
+[33mcommit 4339d6b265269547555f6237c038ed6a8b69382d[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Mon Sep 1 00:46:18 2014 -0400
+
+    v1.9.1.1
+
+[33mcommit 6d1482ce55a659fed4c7f71466850046ad1cc070[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Sun Aug 24 23:18:06 2014 -0400
+
+    v1.8.4.1
+
+[33mcommit bbcfb25dc1b7df9e5791fd699d0b66215eaa9ea5[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Sun Aug 17 23:33:35 2014 -0400
+
+    v1.8.3.1
+
+[33mcommit f352c55747a3c4e42b4411b9c3daf79464f83b72[m
+Merge: 28d08a4 67b640b
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Sun Aug 10 23:21:56 2014 -0400
+
+    Merge branch 'master' of github.com:gnosygnu/luaj_xowa
+
+[33mcommit 28d08a4c225eb9c877409eb7766e24dd73b3ce62[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Sun Aug 10 23:20:39 2014 -0400
+
+    v1.8.2.1
+
+[33mcommit 67b640b074ecb084cf3515a367d773a387b32969[m
+Author: gnosygnu <gnosygnu@users.noreply.github.com>
+Date:   Sat Aug 9 01:42:40 2014 -0400
+
+    Update README.md
+
+[33mcommit 3fd9405a30b3f0b98c19b8ead8b6a91ad171e1e0[m
+Author: gnosygnu <gnosygnu@gmail.com>
+Date:   Fri Aug 8 23:30:14 2014 -0400
+
+    v1.8.1.1
+
+[33mcommit be9012cda0657192a001e648b35f6731a611648a[m
+Author: gnosygnu <gnosygnu@users.noreply.github.com>
+Date:   Fri Aug 8 23:25:54 2014 -0400
+
+    Initial commit

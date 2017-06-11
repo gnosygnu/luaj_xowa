@@ -114,7 +114,22 @@ public class ScriptEngineSample {
             		"io.stdout:write(\"string written using 'io.stdout:write()'\\n\")\n" +
             		"io.stderr:write(\"string written using 'io.stderr:write(), hit return to continue...'\\n\")\n" +
             		"io.write([[string read using 'io.stdin:read(\"*l\")':]]..io.stdin:read(\"*l\")..\"\\n\")\n";
-
+            /*
+            String script
+            = ""
+            + "local arg = 'abcd'\n"
+            + "function outer()\n"
+            + "  inner('pass')\n"
+            + "end\n"
+            + "function inner(...)\n"
+//            + "  return arg\n"
+//            + "  io.stdout:write(prm1)\n"
+            + "  io.stdout:write(tostring(arg))\n"
+            + "end\n"
+            + "outer('abc')\n"
+            ;
+            ;
+            */
             System.out.println("Evaluating script with redirection set.");
             e.getContext().setReader(input);
             e.getContext().setWriter(output);
