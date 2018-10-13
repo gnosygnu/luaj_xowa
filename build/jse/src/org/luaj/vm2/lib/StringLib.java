@@ -756,7 +756,8 @@ public class StringLib extends TwoArgFunction {
 			
 			boolean anchor = false;
 			int poff = 0;
-			if ( pat.luaByte( 0 ) == '^' ) {
+			// XOWA: check length > 0 else IndexOutOfBoundsException; PAGE:c:File:Nouveauxvoyagese-p378.png; DATE:2017-07-19 
+			if ( pat.length() > 0 && pat.luaByte( 0 ) == '^' ) {
 				anchor = true;
 				poff = 1;
 			}

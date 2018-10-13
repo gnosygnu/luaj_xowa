@@ -113,6 +113,12 @@ public class LuaString extends LuaValue {
 		return valueOf(b, 0, b.length);
 	}
 
+	public static LuaString valueOfCopy(byte[] bytes, int off, int len) {
+		byte[] rv = new byte[len];
+		for (int i = 0; i < len; i++)
+			rv[i] = bytes[i + off];
+		return valueOf(rv, 0, len);
+	}
 	// TODO: should this be deprecated or made private?
 	/** Construct a {@link LuaString} around a byte array that may be used directly as the backing.
 	 * <p>
@@ -916,7 +922,7 @@ public class LuaString extends LuaValue {
 			ps.print((char) c);
 		}
 	}
-	private static int Utf16_Len_by_char(int c) {
+	public static int Utf16_Len_by_char(int c) {
 		if	   ((c >       -1)
 			 && (c <      128))	return 1;		// 1 <<  7
 		else if (c <     2048)	return 2;		// 1 << 11
@@ -1060,6 +1066,33 @@ public class LuaString extends LuaValue {
 			if (c_pos >= c_ary.length)
 				throw new RuntimeException("incomplete surrogate pair at end of string; char=" + c);
 			int nxt_char = c_ary[c_pos + 1];
+			int v = Utf16_Surrogate_merge(c, nxt_char);
+			b_ary[b_pos] 	= (byte)(0xF0 | (v >> 18));
+			b_ary[++b_pos] 	= (byte)(0x80 | (v >> 12) & 0x3F);
+			b_ary[++b_pos] 	= (byte)(0x80 | (v >>  6) & 0x3F);
+			b_ary[++b_pos] 	= (byte)(0x80 | (v        & 0x3F));
+			return 4;
+		}
+		else {
+			b_ary[b_pos] 	= (byte)(0xE0 | (c >> 12));
+			b_ary[++b_pos] 	= (byte)(0x80 | (c >>  6) & 0x3F);
+			b_ary[++b_pos] 	= (byte)(0x80 | (c        & 0x3F));
+			return 3;
+		}
+	}
+	public static int Utf16_Encode_char(int c, int nxt_char, byte[] b_ary, int b_pos) {
+		if	   ((c >   -1)
+			 && (c < 128)) {
+			b_ary[  b_pos]	= (byte)c;
+			return 1;
+		}
+		else if (c < 2048) {
+			b_ary[  b_pos] 	= (byte)(0xC0 | (c >>   6));
+			b_ary[++b_pos] 	= (byte)(0x80 | (c & 0x3F));
+			return 2;
+		}	
+		else if((c > 55295)				// 0xD800
+			 && (c < 56320)) {			// 0xDFFF
 			int v = Utf16_Surrogate_merge(c, nxt_char);
 			b_ary[b_pos] 	= (byte)(0xF0 | (v >> 18));
 			b_ary[++b_pos] 	= (byte)(0x80 | (v >> 12) & 0x3F);

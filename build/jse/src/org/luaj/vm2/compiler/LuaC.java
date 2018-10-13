@@ -268,7 +268,7 @@ public class LuaC extends Lua implements Globals.Compiler, Globals.Loader {
 		FuncState funcstate = new FuncState();
 		// lexstate.buff = buff;
 		lexstate.fs = funcstate;
-		lexstate.setinput( this, z.read(), z, (LuaString) LuaValue.valueOf(name) );
+		lexstate.setinput( this, (byte)z.read(), z, (LuaString) LuaValue.valueOf(name) );
 		/* main func. is always vararg */
 		funcstate.f = new Prototype();
 		funcstate.f.source = (LuaString) LuaValue.valueOf(name);
