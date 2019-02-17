@@ -415,6 +415,7 @@ public class LuaTable extends LuaValue implements Metatable {
 				if ( !found ) {
 					error( "invalid key to 'next'" );
 				}
+
 				i += 1+array.length;
 			}
 		} while ( false );
@@ -470,7 +471,15 @@ public class LuaTable extends LuaValue implements Metatable {
 				for ( Slot slot = hash[ index ]; slot != null; slot = slot.rest() ) {
 					StrongSlot foundSlot;
 					if ( ( foundSlot = slot.find( key ) ) != null ) {
-						hash[index] = hash[index].set( foundSlot, value );
+						// XOWA: if slot is NumberValueEntry, but val is string, change slot to NormalEntry; otherwise, if val is "2.", will get coerced to 2 int; ISSUE#:360 DATE:2019-02-16
+						// note that this check only needs to happen with NumberValueEntry, b/c its set() does n.todouble() 
+						Slot set_slot = hash[index];
+						int set_slot_type = set_slot.Slot_type();
+						if (set_slot_type == Slot_.Type__number && value.isstring()) {
+							set_slot = new NormalEntry( key, value );
+							hash[index] = set_slot;							
+						}
+						hash[index] = set_slot.set( foundSlot, value );
 						return;
 					}
 				}
@@ -925,7 +934,21 @@ public class LuaTable extends LuaValue implements Metatable {
 	/**
 	 * Represents a slot in the hash table.
 	 */
+	class Slot_ {
+		public static final int 
+		  Type__dead      = 1
+		, Type__int       = 2
+		, Type__link      = 3
+		, Type__normal    = 4
+		, Type__number    = 5
+		, Type__weak_kv   = 6
+		, Type__weak_key  = 7
+		, Type__weak_val  = 8
+		;
+		
+	}
 	interface Slot {
+		int Slot_type();
 
 		/** Return hash{pow2,mod}( first().key().hashCode(), sizeMask ) */
 		int keyindex( int hashMask );
@@ -998,6 +1021,8 @@ public class LuaTable extends LuaValue implements Metatable {
 			this.entry = entry;
 			this.next = next;
 		}
+		
+		public int Slot_type() {return Slot_.Type__link;}
 
 		public LuaValue key() {
 			return entry.key();
@@ -1161,6 +1186,8 @@ public class LuaTable extends LuaValue implements Metatable {
 			this.key = key;
 			this.value = value;
 		}
+		
+		public int Slot_type() {return Slot_.Type__normal;}
 
 		public LuaValue key() {
 			return key;
@@ -1197,6 +1224,8 @@ public class LuaTable extends LuaValue implements Metatable {
 			this.value = value;
 		}
 
+		public int Slot_type() {return Slot_.Type__int;}
+		
 		public LuaValue key() {
 			return valueOf( key );
 		}
@@ -1234,6 +1263,8 @@ public class LuaTable extends LuaValue implements Metatable {
 			this.key = key;
 			this.value = value;
 		}
+		
+		public int Slot_type() {return Slot_.Type__number;}
 
 		public LuaValue key() {
 			return key;
@@ -1243,9 +1274,9 @@ public class LuaTable extends LuaValue implements Metatable {
 			return valueOf(value);
 		}
 
-		public Entry set(LuaValue value) {
+		public Entry set(LuaValue value) {			
 			LuaValue n = value.tonumber();
-			if ( !n.isnil() ) {
+			if (!n.isnil()) {
 				this.value = n.todouble();
 				return this;
 			} else {
@@ -1280,6 +1311,7 @@ public class LuaTable extends LuaValue implements Metatable {
 			return (LuaValue) (key instanceof WeakReference ? ((WeakReference) key).get() : key);
 		}
 
+		public int Slot_type() {return Slot_.Type__dead;}
 		public int keyindex(int hashMask) {
 			// Not needed: this entry will be dropped during rehash.
 			return 0;

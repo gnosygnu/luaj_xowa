@@ -24,6 +24,7 @@ package org.luaj.vm2;
 import java.lang.ref.WeakReference;
 
 import org.luaj.vm2.LuaTable.Slot;
+import org.luaj.vm2.LuaTable.Slot_;
 import org.luaj.vm2.LuaTable.StrongSlot;
 
 /**
@@ -216,6 +217,8 @@ public class WeakTable implements Metatable {
 			super( copyFrom.key, copyFrom.value, next );
 			this.keyhash = copyFrom.keyhash;
 		}
+		
+		public int Slot_type() {return Slot_.Type__weak_key;}
 
 		public int keyindex( int mask ) {
 			return LuaTable.hashmod( keyhash, mask );
@@ -245,6 +248,8 @@ public class WeakTable implements Metatable {
 			super( copyFrom.key, copyFrom.value, next );
 		}
 
+		public int Slot_type() {return Slot_.Type__weak_val;}
+		
 		public int keyindex( int mask ) {
 			return LuaTable.hashSlot( strongkey(), mask );
 		}
@@ -276,6 +281,8 @@ public class WeakTable implements Metatable {
 			super( copyFrom.key, copyFrom.value, next );
 			keyhash = copyFrom.keyhash;
 		}
+		
+		public int Slot_type() {return Slot_.Type__weak_kv;}
 
 		public int keyindex( int hashMask ) {
 			return LuaTable.hashmod( keyhash, hashMask );
