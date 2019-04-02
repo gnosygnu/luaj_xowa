@@ -77,8 +77,8 @@ public class DebugLib extends TwoArgFunction {
 	
 	private static final LuaString LUA             = valueOf("Lua");  
 	private static final LuaString QMARK           = valueOf("?");  
-	private static final LuaString CALL            = valueOf("call");  
-	private static final LuaString LINE            = valueOf("line");  
+	private static final LuaString CALL            = valueOf("call"); 
+	private static final LuaString LINE            = valueOf("line");
 	private static final LuaString COUNT           = valueOf("count");  
 	private static final LuaString RETURN          = valueOf("return");
 	

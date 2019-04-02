@@ -74,7 +74,7 @@ public class LuaOperationsTest extends TestCase {
 			fail( "bad exception: "+e );
 		}
 	}
-	
+
 	private void throwsLuaError(String methodName, Object obj, Object arg) {
 		try {
 			LuaValue.class.getMethod(methodName,LuaValue.class).invoke(obj,arg);

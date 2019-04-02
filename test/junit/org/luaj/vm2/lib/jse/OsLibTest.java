@@ -11,7 +11,7 @@ public class OsLibTest extends TestCase {
 	
 	public void setUp() {
 		lib = new OsLib();
-		time = new java.util.Date(2001-1900, 7, 23, 14, 55, 02).getTime() / 1000.0;
+		time = (new java.util.GregorianCalendar(2001, 7, 23, 14, 55, 02).getTimeInMillis()) / 1000.0;
 	}
 
 	void t(String format, String expected) {

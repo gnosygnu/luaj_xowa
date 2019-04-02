@@ -234,7 +234,7 @@ public class ScriptDrivenTest extends TestCase implements ResourceFinder {
 	
 	public static String collectProcessOutput(String[] cmd, final InputStream input)
 			throws IOException, InterruptedException {
-		Runtime r = Runtime.getRuntime();
+		Runtime.getRuntime();
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		new JseProcess(cmd, input, baos, System.err).waitFor();
 		return new String(baos.toByteArray());
