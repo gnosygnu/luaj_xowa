@@ -2,11 +2,14 @@ package org.luaj.vm2.lib.jse;
 
 public class TestClass {
    private static class PrivateImpl implements TestInterface {
-		public String public_field = "privateImpl-constructor";
+		public String public_field;
+		public PrivateImpl() {
+			this.public_field = "privateImpl-constructor";
+		}
 		PrivateImpl(String f) { 
 			this.public_field = f;
 		}
-//		public String public_method() { return "privateImpl-"+public_field+"-public_method"; }
+		public String public_method() { return "privateImpl-"+public_field+"-public_method"; }
 		public String interface_method(String x) { return "privateImpl-"+public_field+"-interface_method("+x+")"; }
 		public String toString() { return public_field; }
    }

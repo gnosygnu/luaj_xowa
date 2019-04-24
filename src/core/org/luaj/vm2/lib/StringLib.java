@@ -163,7 +163,7 @@ public class StringLib extends TwoArgFunction {
 		}
 		return LuaString.valueOf( bytes );
 	}
-
+		
 	/** 
 	 * string.dump (function)
 	 * 
@@ -202,7 +202,7 @@ public class StringLib extends TwoArgFunction {
 	 */
 	public static Varargs find__test( Varargs args ) {return find(args);}
 	static Varargs find( Varargs args ) {
-		return Str_find_mgr__lua.Run(args, true);
+		return str_find_aux( args, true );
 	}
 
 	public static Varargs format_test( Varargs args ) {return format(args);}
@@ -234,7 +234,7 @@ public class StringLib extends TwoArgFunction {
 		final int n = fmt.length();
 		Buffer result = new Buffer(n);
 		int arg = 1;
-		int c;
+		int c;		
 		for ( int i = 0; i < n; ) {
 			switch ( c = fmt.luaByte( i++ ) ) {
 			case '\n':
@@ -294,7 +294,7 @@ public class StringLib extends TwoArgFunction {
 				}
 			}
 		}
-
+		
 		return result.tostring();
 	}
 	
@@ -325,43 +325,42 @@ public class StringLib extends TwoArgFunction {
 		}
 		buf.append( (byte) '"' );
 	}
-
-	// private static final String FLAGS = "-+ #0"; // LUAJ: DEAD
+	
+	private static final String FLAGS = "-+ #0";
 	
 	static class FormatDesc {
-
+		
 		private boolean leftAdjust;
 		private boolean zeroPad;
 		private boolean explicitPlus;
 		private boolean space;
-		// private boolean alternateForm; // LUAJ: DEAD
+		private boolean alternateForm;
 		private static final int MAX_FLAGS = 5;
-
+		
 		private int width;
 		private int precision;
-
+		
 		public final int conversion;
 		public final int length;
-
+		
 		public FormatDesc(Varargs args, LuaString strfrmt, final int start) {
 			int p = start, n = strfrmt.length();
 			int c = 0;
-	
+			
 			boolean moreFlags = true;
 			while ( moreFlags ) {
 				switch ( c = ( (p < n) ? strfrmt.luaByte( p++ ) : 0 ) ) {
 				case '-': leftAdjust = true; break;
 				case '+': explicitPlus = true; break;
 				case ' ': space = true; break;
-                // case '#': alternateForm = true; break; // LUAJ: DEAD
-                case '#': break;
+				case '#': alternateForm = true; break;
 				case '0': zeroPad = true; break;
 				default: moreFlags = false; break;
 				}
 			}
 			if ( p - start > MAX_FLAGS )
 				error("invalid format (repeated flags)");
-	
+			
 			width = -1;
 			if ( Character.isDigit( (char)c ) ) {
 				width = c - '0';
@@ -371,7 +370,7 @@ public class StringLib extends TwoArgFunction {
 					c = ( (p < n) ? strfrmt.luaByte( p++ ) : 0 );
 				}
 			}
-	
+			
 			precision = -1;
 			if ( c == '.' ) {
 				c = ( (p < n) ? strfrmt.luaByte( p++ ) : 0 );
@@ -384,23 +383,23 @@ public class StringLib extends TwoArgFunction {
 					}
 				}
 			}
-	
+			
 			if ( Character.isDigit( (char) c ) )
 				error("invalid format (width or precision too long)");
-	
+			
 			zeroPad &= !leftAdjust; // '-' overrides '0'
 			conversion = c;
 			length = p - start;
 		}
-
+		
 		public void format(Buffer buf, byte c) {
 			// TODO: not clear that any of width, precision, or flags apply here.
 			buf.append(c);
 		}
-
+		
 		public void format(Buffer buf, long number) {
 			String digits;
-	
+			
 			if ( number == 0 && precision == 0 ) {
 				digits = "";
 			} else {
@@ -421,30 +420,30 @@ public class StringLib extends TwoArgFunction {
 				if ( conversion == 'X' )
 					digits = digits.toUpperCase();
 			}
-	
+			
 			int minwidth = digits.length();
 			int ndigits = minwidth;
 			int nzeros;
-	
+			
 			if ( number < 0 ) {
 				ndigits--;
 			} else if ( explicitPlus || space ) {
 				minwidth++;
 			}
-	
+			
 			if ( precision > ndigits )
 				nzeros = precision - ndigits;
 			else if ( precision == -1 && zeroPad && width > minwidth )
 				nzeros = width - minwidth;
 			else
 				nzeros = 0;
-	
+			
 			minwidth += nzeros;
 			int nspaces = width > minwidth ? width - minwidth : 0;
-	
+			
 			if ( !leftAdjust )
 				pad( buf, ' ', nspaces );
-	
+			
 			if ( number < 0 ) {
 				if ( nzeros > 0 ) {
 					buf.append( (byte)'-' );
@@ -455,12 +454,12 @@ public class StringLib extends TwoArgFunction {
 			} else if ( space ) {
 				buf.append( (byte)' ' );
 			}
-	
+			
 			if ( nzeros > 0 )
 				pad( buf, '0', nzeros );
-	
+			
 			buf.append( digits );
-	
+			
 			if ( leftAdjust )
 				pad( buf, ' ', nspaces );
 		}
@@ -473,14 +472,14 @@ public class StringLib extends TwoArgFunction {
 			if (fmt_len > 1 && fmt.charAt(fmt_len - 2) == '.')	// XOWA: penultimmate char has "."
 				fmt = fmt.substring(0, fmt_len - 1) + "0" + fmt.charAt(fmt_len - 1);	// XOWA: add trailing 0, else UnknownFormatConversionException; EX: "02.f" -> "02.0f" 
 			buf.append( String.format(fmt, v) );				// XOWA: call String.format
-		}
+		}		
 		public void format(Buffer buf, LuaString s) {
 			int nullindex = s.indexOf( (byte)'\0', 0 );
 			if ( nullindex != -1 )
 				s = s.substring( 0, nullindex );
 			buf.append(s);
 		}
-
+		
 		public static final void pad(Buffer buf, char c, int n) {
 			byte b = (byte)c;
 			while ( n-- > 0 )
@@ -524,7 +523,7 @@ public class StringLib extends TwoArgFunction {
 		private int soffset;
 		public GMatchAux(Varargs args, LuaString src, LuaString pat) {
 			this.srclen = src.length();
-			this.ms = new MatchState(src, srclen, pat, pat.length(), false);
+			this.ms = new MatchState(args, src, pat);
 			this.soffset = 0;
 		}
 		public Varargs invoke(Varargs args) {
@@ -594,12 +593,11 @@ public class StringLib extends TwoArgFunction {
 		LuaString p = args.checkstring( 2 );
 		LuaValue repl = args.arg( 3 );
 		int max_s = args.optint( 4, srclen + 1 );
-		int pat_len = p.m_length;
-		final boolean anchor = pat_len > 0 && p.charAt( 0 ) == '^';
-
+		final boolean anchor = p.length() > 0 && p.charAt( 0 ) == '^';
+		
 		Buffer lbuf = new Buffer( srclen );
-		MatchState ms = new MatchState(src, srclen, p, pat_len, false);
-
+		MatchState ms = new MatchState( args, src, p );
+		
 		int soffset = 0;
 		int n = 0;
 		while ( n < max_s ) {
@@ -654,7 +652,7 @@ public class StringLib extends TwoArgFunction {
 	 * search; its default value is 1 and may be negative.
 	 */
 	static Varargs match( Varargs args ) {
-		return Str_find_mgr__lua.Run(args, false);
+		return str_find_aux( args, false );
 	}
 	
 	/**
@@ -679,7 +677,7 @@ public class StringLib extends TwoArgFunction {
 	 * 
 	 * Returns a string that is the string s reversed. 
 	 */
-	static LuaValue reverse( LuaValue arg ) {
+	static LuaValue reverse( LuaValue arg ) {		
 		LuaString s = arg.checkstring();
 		int n = s.length();
 		byte[] b = new byte[n];
@@ -702,15 +700,15 @@ public class StringLib extends TwoArgFunction {
 	static Varargs sub( Varargs args ) {
 		final LuaString s = args.checkstring( 1 );
 		final int l = s.length();
-
+		
 		int start = posrelat( args.checkint( 2 ), l );
 		int end = posrelat( args.optint( 3, -1 ), l );
-
+		
 		if ( start < 1 )
 			start = 1;
 		if ( end > l )
 			end = l;
-
+		
 		if ( start <= end ) {
 			return s.substring( start-1 , end );
 		} else {
@@ -728,10 +726,464 @@ public class StringLib extends TwoArgFunction {
 	static LuaValue upper( LuaValue arg ) {
 		return valueOf(arg.checkjstring().toUpperCase());
 	}
-
+	
+	/**
+	 * This utility method implements both string.find and string.match.
+	 */
+	static Varargs str_find_aux( Varargs args, boolean find ) {
+		LuaString s = args.checkstring( 1 );
+		LuaString pat = args.checkstring( 2 );
+		int init = args.optint( 3, 1 );
+		
+		int s_len = s.m_length;
+		if ( init > 0 ) {
+			int min_lhs = init - 1;
+			init = min_lhs < s_len ? min_lhs : s_len;	// XOWA.PERF:Math.min( init - 1, s.length() ); DATE:2014-08-13 
+		} else if ( init < 0 ) {
+			int max_rhs = s_len + init;
+			init = 0 > max_rhs ? 0 : max_rhs;			// XOWA.PERF:Math.max( 0, s_len + init ); DATE:2014-08-13
+		}
+		
+		boolean fastMatch = find && ( args.arg(4).toboolean() || pat.indexOfAny( SPECIALS ) == -1 );
+		
+		if ( fastMatch ) {
+			int result = s.indexOf( pat, init );
+			if ( result != -1 ) {
+				return varargsOf( valueOf(result+1), valueOf(result+pat.length()) );
+			}
+		} else {
+			MatchState ms = new MatchState( args, s, pat );
+			
+			boolean anchor = false;
+			int poff = 0;
+			// XOWA: check length > 0 else IndexOutOfBoundsException; PAGE:c:File:Nouveauxvoyagese-p378.png; DATE:2017-07-19 
+			if ( pat.length() > 0 && pat.luaByte( 0 ) == '^' ) {
+				anchor = true;
+				poff = 1;
+			}
+			
+			int soff = init;
+			do {
+				int res;
+				ms.reset();
+				if ( ( res = ms.match( soff, poff ) ) != -1 ) {
+					if ( find ) {
+						return varargsOf( valueOf(soff+1), valueOf(res), ms.push_captures( false, soff, res ));
+					} else {
+						return ms.push_captures( true, soff, res );
+					}
+				}
+			} while ( soff++ < s_len && !anchor );	// NOTE: soff++ will force evaluation one more time at end of string; EX: soff = 0; s_len = 1; s_off++ < s_len -> true and soff will be 1
+		}
+		return NIL;
+	}
+	
 	private static int posrelat( int pos, int len ) {
 		return ( pos >= 0 ) ? pos : len + pos + 1;
 	}
 	
-	public static final int L_ESC = '%';	
+	// Pattern matching implementation
+	
+	private static final int L_ESC = '%';
+	private static final LuaString SPECIALS = valueOf("^$*+?.([%-");
+	private static final int MAX_CAPTURES = 32;
+	
+	private static final int CAP_UNFINISHED = -1;
+	private static final int CAP_POSITION = -2;
+	
+	private static final byte MASK_ALPHA		= 0x01;
+	private static final byte MASK_LOWERCASE	= 0x02;
+	private static final byte MASK_UPPERCASE	= 0x04;
+	private static final byte MASK_DIGIT		= 0x08;
+	private static final byte MASK_PUNCT		= 0x10;
+	private static final byte MASK_SPACE		= 0x20;
+	private static final byte MASK_CONTROL		= 0x40;
+	private static final byte MASK_HEXDIGIT		= (byte)0x80;
+	
+	private static final byte[] CHAR_TABLE;
+	
+	static {
+		CHAR_TABLE = new byte[256];
+		
+		for ( int i = 0; i < 128; ++i ) {	// XOWA: was "i < 256"; NOTE: either lua C defines isalpha as ASCII or Wikimedia uses English locale lua binaries; DATE:2016-04-17
+			final char c = (char) i;
+			CHAR_TABLE[i] = (byte)( ( Character.isDigit( c ) ? MASK_DIGIT : 0 ) |
+							( Character.isLowerCase( c ) ? MASK_LOWERCASE : 0 ) |
+							( Character.isUpperCase( c ) ? MASK_UPPERCASE : 0 ) |
+							( ( c < ' ' || c == 0x7F ) ? MASK_CONTROL : 0 ) );
+			if ( ( c >= 'a' && c <= 'f' ) || ( c >= 'A' && c <= 'F' ) || ( c >= '0' && c <= '9' ) ) {
+				CHAR_TABLE[i] |= MASK_HEXDIGIT;
+			}
+			if ( ( c >= '!' && c <= '/' ) || ( c >= ':' && c <= '@' ) ) {
+				CHAR_TABLE[i] |= MASK_PUNCT;
+			}
+			if ( ( CHAR_TABLE[i] & ( MASK_LOWERCASE | MASK_UPPERCASE ) ) != 0 ) {
+				CHAR_TABLE[i] |= MASK_ALPHA;
+			}
+		}
+		
+		CHAR_TABLE[' '] = MASK_SPACE;
+		CHAR_TABLE['\r'] |= MASK_SPACE;
+		CHAR_TABLE['\n'] |= MASK_SPACE;
+		CHAR_TABLE['\t'] |= MASK_SPACE;
+		CHAR_TABLE[0x0C /* '\v' */ ] |= MASK_SPACE;
+		CHAR_TABLE['\f'] |= MASK_SPACE;
+	};
+	
+	static class MatchState {
+		final LuaString s;
+		final LuaString p;
+		final Varargs args;
+		int level;
+		int[] cinit;
+		int[] clen;
+		
+		MatchState( Varargs args, LuaString s, LuaString pattern ) {
+			this.s = s;
+			this.p = pattern;
+			this.args = args;
+			this.level = 0;
+			this.cinit = new int[ MAX_CAPTURES ];
+			this.clen = new int[ MAX_CAPTURES ];
+		}
+		
+		void reset() {
+			level = 0;
+		}
+		
+		private void add_s( Buffer lbuf, LuaString news, int soff, int e ) {
+			int l = news.length();
+			for ( int i = 0; i < l; ++i ) {
+				byte b = (byte) news.luaByte( i );
+				if ( b != L_ESC ) {
+					lbuf.append( (byte) b );
+				} else {
+					++i; // skip ESC
+					b = (byte) news.luaByte( i );
+					if ( !Character.isDigit( (char) b ) ) {
+						lbuf.append( b );
+					} else if ( b == '0' ) {
+						lbuf.append( s.substring( soff, e ) );
+					} else {
+						lbuf.append( push_onecapture( b - '1', soff, e ).strvalue() );
+					}
+				}
+			}
+		}
+		
+		public void add_value( Buffer lbuf, int soffset, int end, LuaValue repl ) {
+			switch ( repl.type() ) {
+			case LuaValue.TSTRING:
+			case LuaValue.TNUMBER:
+				add_s( lbuf, repl.strvalue(), soffset, end );
+				return;
+				
+			case LuaValue.TFUNCTION:
+				repl = repl.invoke( push_captures( true, soffset, end ) ).arg1();
+				break;
+				
+			case LuaValue.TTABLE:
+				// Need to call push_onecapture here for the error checking
+				repl = repl.get( push_onecapture( 0, soffset, end ) );
+				break;
+				
+			default:
+				error( "bad argument: string/function/table expected" );
+				return;
+			}
+			
+			if ( !repl.toboolean() ) {
+				repl = s.substring( soffset, end );
+			} else if ( ! repl.isstring() ) {
+				error( "invalid replacement value (a "+repl.typename()+")" );
+			}
+			lbuf.append( repl.strvalue() );
+		}
+		
+		Varargs push_captures( boolean wholeMatch, int soff, int end ) {
+			int nlevels = ( this.level == 0 && wholeMatch ) ? 1 : this.level;
+			switch ( nlevels ) {
+			case 0: return NONE;
+			case 1: return push_onecapture( 0, soff, end );
+			}
+			LuaValue[] v = new LuaValue[nlevels];
+			for ( int i = 0; i < nlevels; ++i )
+				v[i] = push_onecapture( i, soff, end );
+			return varargsOf(v);
+		}
+		
+		private LuaValue push_onecapture( int i, int soff, int end ) {
+			if ( i >= this.level ) {
+				if ( i == 0 ) {
+					return s.substring( soff, end );
+				} else {
+					return error( "invalid capture index" );
+				}
+			} else {
+				int l = clen[i];
+				if ( l == CAP_UNFINISHED ) {
+					return error( "unfinished capture" );
+				}
+				if ( l == CAP_POSITION ) {
+					return valueOf( cinit[i] + 1 );
+				} else {
+					int begin = cinit[i];
+					return s.substring( begin, begin + l );
+				}
+			}
+		}
+		
+		private int check_capture( int l ) {
+			l -= '1';
+			if ( l < 0 || l >= level || this.clen[l] == CAP_UNFINISHED ) {
+				error("invalid capture index");
+			}
+			return l;
+		}
+		
+		private int capture_to_close() {
+			int level = this.level;
+			for ( level--; level >= 0; level-- )
+				if ( clen[level] == CAP_UNFINISHED )
+					return level;
+			error("invalid pattern capture");
+			return 0;
+		}
+		
+		int classend( int poffset ) {
+			switch ( p.luaByte( poffset++ ) ) {
+			case L_ESC:
+				if ( poffset == p.length() ) {
+					error( "malformed pattern (ends with %)" );
+				}
+				return poffset + 1;
+				
+			case '[':
+				if ( p.luaByte( poffset ) == '^' ) poffset++;
+				do {
+					if ( poffset == p.length() ) {
+						error( "malformed pattern (missing ])" );
+					}
+					if ( p.luaByte( poffset++ ) == L_ESC && poffset != p.length() )
+						poffset++;
+				} while ( p.luaByte( poffset ) != ']' );
+				return poffset + 1;
+			default:
+				return poffset;
+			}
+		}
+		
+		static boolean match_class( int c, int cl ) {
+			final char lcl = Character.toLowerCase( (char) cl );
+			int cdata = c == -1 ? 0 : CHAR_TABLE[c];	// XOWA: handle c == -1 else bounds error; note that match passes in -1 deliberately: "int previous = ( soffset == 0 ) ? -1..."; DATE:2014-08-14 
+			
+			boolean res;
+			switch ( lcl ) {
+			case 'a': res = ( cdata & MASK_ALPHA ) != 0; break;
+			case 'd': res = ( cdata & MASK_DIGIT ) != 0; break;
+			case 'l': res = ( cdata & MASK_LOWERCASE ) != 0; break;
+			case 'u': res = ( cdata & MASK_UPPERCASE ) != 0; break;
+			case 'c': res = ( cdata & MASK_CONTROL ) != 0; break;
+			case 'p': res = ( cdata & MASK_PUNCT ) != 0; break;
+			case 's': res = ( cdata & MASK_SPACE ) != 0; break;
+			case 'w': res = ( cdata & ( MASK_ALPHA | MASK_DIGIT ) ) != 0; break;
+			case 'x': res = ( cdata & MASK_HEXDIGIT ) != 0; break;
+			case 'z': res = ( c == 0 ); break;
+			default: return cl == c;
+			}
+			return ( lcl == cl ) ? res : !res;
+		}		
+		boolean matchbracketclass(int c, int poff, int ec) {
+			boolean sig = true;
+			if ( p.luaByte( poff + 1 ) == '^' ) {
+				sig = false;
+				poff++;
+			}
+			while ( ++poff < ec ) {
+				if ( p.luaByte( poff ) == L_ESC ) {
+					poff++;
+					if ( match_class( c, p.luaByte( poff ) ) )
+						return sig;
+				}
+				else if ( ( p.luaByte( poff + 1 ) == '-' ) && ( poff + 2 < ec ) ) {
+					poff += 2;
+					if ( p.luaByte( poff - 2 ) <= c && c <= p.luaByte( poff ) )
+						return sig;
+				}
+				else if ( p.luaByte( poff ) == c ) return sig;
+			}
+			return !sig;
+		}
+		
+		boolean singlematch( int c, int poff, int ep ) {
+			switch ( p.luaByte( poff ) ) {
+			case '.': return true;
+			case L_ESC: return match_class( c, p.luaByte( poff + 1 ) );
+			case '[': return matchbracketclass( c, poff, ep - 1 );
+			default: return p.luaByte( poff ) == c;
+			}
+		}
+		
+		/**
+		 * Perform pattern matching. If there is a match, returns offset into s
+		 * where match ends, otherwise returns -1.
+		 */
+		int match( int soffset, int poffset ) {
+			while ( true ) {
+				// Check if we are at the end of the pattern - 
+				// equivalent to the '\0' case in the C version, but our pattern
+				// string is not NUL-terminated.
+				if ( poffset == p.length() )
+					return soffset;
+				switch ( p.luaByte( poffset ) ) {
+				case '(':
+					if ( ++poffset < p.length() && p.luaByte( poffset ) == ')' )
+						return start_capture( soffset, poffset + 1, CAP_POSITION );
+					else
+						return start_capture( soffset, poffset, CAP_UNFINISHED );
+				case ')':
+					return end_capture( soffset, poffset + 1 );
+				case L_ESC:
+					if ( poffset + 1 == p.length() )
+						error("malformed pattern (ends with '%')");
+					switch ( p.luaByte( poffset + 1 ) ) {
+					case 'b':						
+						soffset = matchbalance( soffset, poffset + 2 );
+						if ( soffset == -1 ) return -1;
+						poffset += 4;
+						continue;
+					case 'f': {
+						poffset += 2;
+						if ( p.luaByte( poffset ) != '[' ) {
+							error("Missing [ after %f in pattern");
+						}
+						int ep = classend( poffset );
+						int previous = ( soffset == 0 ) ? -1 : s.luaByte( soffset - 1 );
+						if ( 							 matchbracketclass( previous				, poffset, ep - 1 ) ||
+							 (soffset < s.m_length && 	!matchbracketclass( s.luaByte( soffset )	, poffset, ep - 1 ) ))	// XOWA: (1) added bounds check of "soffset < s.m_length"; DATE:2014-08-14; (2) fixed by changing from "matchbracketclass" to "!matchbracketclass"; PAGE:en.w:A; DATE:2016-01-28 
+							return -1;
+						poffset = ep;
+						continue;
+					}
+					default: {
+						int c = p.luaByte( poffset + 1 );
+						if ( Character.isDigit( (char) c ) ) {
+							soffset = match_capture( soffset, c );
+							if ( soffset == -1 )
+								return -1;
+							return match( soffset, poffset + 2 );
+						}
+					}
+					}
+				case '$':
+					if ( poffset + 1 == p.length() )
+						return ( soffset == s.length() ) ? soffset : -1;
+				}
+				int ep = classend( poffset );
+				boolean m = soffset < s.length() && singlematch( s.luaByte( soffset ), poffset, ep );
+				int pc = ( ep < p.length() ) ? p.luaByte( ep ) : '\0';
+				
+				switch ( pc ) {
+				case '?':
+					int res;
+					if ( m && ( ( res = match( soffset + 1, ep + 1 ) ) != -1 ) )
+						return res;
+					poffset = ep + 1;
+					continue;
+				case '*':
+					return max_expand( soffset, poffset, ep );
+				case '+':
+					return ( m ? max_expand( soffset + 1, poffset, ep ) : -1 );
+				case '-':
+					return min_expand( soffset, poffset, ep );
+				default:
+					if ( !m )
+						return -1;
+					soffset++;
+					poffset = ep;
+					continue;
+				}
+			}
+		}
+		int max_expand( int soff, int poff, int ep ) {
+			int i = 0;
+			while ( soff + i < s.length() &&
+					singlematch( s.luaByte( soff + i ), poff, ep ) )
+				i++;
+			while ( i >= 0 ) {
+				int res = match( soff + i, ep + 1 );
+				if ( res != -1 )
+					return res;
+				i--;
+			}
+			return -1;
+		}
+
+		int min_expand( int soff, int poff, int ep ) {
+			int s_len = s.m_length;	// XOWA: cache string length; DATE: 2014-08-13
+			for ( ;; ) {
+				int res = match( soff, ep + 1 );
+				if ( res != -1 )
+					return res;
+				else if ( soff < s_len && singlematch( s.luaByte( soff ), poff, ep ) )
+					soff++;
+				else return -1;
+			}
+		}
+		
+		int start_capture( int soff, int poff, int what ) {
+			int res;
+			int level = this.level;
+			if ( level >= MAX_CAPTURES ) {
+				error( "too many captures" );
+			}
+			cinit[ level ] = soff;
+			clen[ level ] = what;
+			this.level = level + 1;
+			if ( ( res = match( soff, poff ) ) == -1 )
+				this.level--;
+			return res;
+		}
+		
+		int end_capture( int soff, int poff ) {
+			int l = capture_to_close();
+			int res;
+			clen[l] = soff - cinit[l];
+			if ( ( res = match( soff, poff ) ) == -1 )
+				clen[l] = CAP_UNFINISHED;
+			return res;
+		}
+		
+		int match_capture( int soff, int l ) {
+			l = check_capture( l );
+			int len = clen[ l ];
+			if ( ( s.length() - soff ) >= len &&
+				 LuaString.equals( s, cinit[l], s, soff, len ) )
+				return soff + len;
+			else
+				return -1;
+		}
+		
+		int matchbalance( int soff, int poff ) {
+			final int plen = p.length();
+			if ( poff == plen || poff + 1 == plen ) {
+				error( "unbalanced pattern" );
+			}
+			if (soff >= s.m_length) return -1;	// XOWA: check bounds; EX:string_match('a', '^(.) ?%b()'); DATE:2014-08-13
+			if ( s.luaByte( soff ) != p.luaByte( poff ) )
+				return -1;
+			else {
+				int b = p.luaByte( poff );
+				int e = p.luaByte( poff + 1 );
+				int cont = 1;
+				while ( ++soff < s.length() ) {
+					if ( s.luaByte( soff ) == e ) {
+						if ( --cont == 0 ) return soff + 1;
+					}
+					else if ( s.luaByte( soff ) == b ) cont++;
+				}
+			}
+			return -1;
+		}
+	}
 }

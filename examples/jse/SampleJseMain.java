@@ -13,6 +13,7 @@ import org.luaj.vm2.lib.jse.JsePlatform;
  * @see LuaValue
  */
 public class SampleJseMain {
+	
 	public static void main(String[] args) throws Exception {
 		String script = "examples/lua/hello.lua";
 		
@@ -25,4 +26,6 @@ public class SampleJseMain {
 		// Use any of the "call()" or "invoke()" functions directly on the chunk.
 		chunk.call( LuaValue.valueOf(script) );
 	}
+
+
 }
