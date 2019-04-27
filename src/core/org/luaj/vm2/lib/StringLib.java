@@ -202,7 +202,12 @@ public class StringLib extends TwoArgFunction {
 	 */
 	public static Varargs find__test( Varargs args ) {return find(args);}
 	static Varargs find( Varargs args ) {
-		return str_find_aux( args, true );
+//		Varargs old_val = str_find_aux( args, true );
+		Varargs new_val = Str_find_mgr__lua.Run(args, true);
+//		if (!old_val.tojstring().equals(new_val.tojstring())) {
+//			System.out.println("oops");
+//		}
+		return new_val;
 	}
 
 	public static Varargs format_test( Varargs args ) {return format(args);}
@@ -325,8 +330,9 @@ public class StringLib extends TwoArgFunction {
 		}
 		buf.append( (byte) '"' );
 	}
-	
-	private static final String FLAGS = "-+ #0";
+
+	// TOMBSTONE:LUAJ_DEAD_CODE
+	// private static final String FLAGS = "-+ #0";
 	
 	static class FormatDesc {
 		
@@ -334,7 +340,8 @@ public class StringLib extends TwoArgFunction {
 		private boolean zeroPad;
 		private boolean explicitPlus;
 		private boolean space;
-		private boolean alternateForm;
+		// TOMBSTONE:LUAJ_DEAD_CODE
+		// private boolean alternateForm;
 		private static final int MAX_FLAGS = 5;
 		
 		private int width;
@@ -353,7 +360,7 @@ public class StringLib extends TwoArgFunction {
 				case '-': leftAdjust = true; break;
 				case '+': explicitPlus = true; break;
 				case ' ': space = true; break;
-				case '#': alternateForm = true; break;
+				case '#': break; // alternateForm = true;
 				case '0': zeroPad = true; break;
 				default: moreFlags = false; break;
 				}
@@ -519,22 +526,31 @@ public class StringLib extends TwoArgFunction {
 
 	static class GMatchAux extends VarArgFunction {
 		private final int srclen;
-		private final MatchState ms;
+//		private final MatchState ms_old;
+		private final Match_state ms_new;
 		private int soffset;
 		public GMatchAux(Varargs args, LuaString src, LuaString pat) {
 			this.srclen = src.length();
-			this.ms = new MatchState(args, src, pat);
+			Str_find_mgr__lua find_mgr = new Str_find_mgr__lua(src, pat, 0, false, false);
+			this.ms_new = new Match_state(find_mgr);
+//			this.ms_old = new MatchState(args, src, pat);
 			this.soffset = 0;
 		}
 		public Varargs invoke(Varargs args) {
 			for ( ; soffset<=srclen; soffset++ ) {
-				ms.reset();
-				int res = ms.match(soffset, 0);
-				if ( res >=0) {
+//				ms_old.reset();
+				ms_new.reset();
+//				int res_old = ms_old.match(soffset, 0);
+				int res = ms_new.match(soffset, 0);
+//				if (res_old != res) {
+//					System.out.println("oops");
+//				}
+				if ( res >=0 ) {
 					int soff = soffset;
 					int soffset_adj = res == soffset ? 1 : 0;
 					soffset = res + soffset_adj;
-					return ms.push_captures( true, soff, res );
+//					ms_old.push_captures(true, soff, res);
+					return ms_new.push_captures( true, soff, res );
 				}
 			}
 			return NIL;
@@ -595,22 +611,33 @@ public class StringLib extends TwoArgFunction {
 		int max_s = args.optint( 4, srclen + 1 );
 		final boolean anchor = p.length() > 0 && p.charAt( 0 ) == '^';
 		
+//		Buffer lbuf_old = new Buffer( srclen );
+//		MatchState ms_old = new MatchState( args, src, p );
 		Buffer lbuf = new Buffer( srclen );
-		MatchState ms = new MatchState( args, src, p );
+		Str_find_mgr__lua find_mgr = new Str_find_mgr__lua(src, p, 0, false, false);
+		Match_state ms_new = new Match_state(find_mgr);
 		
 		int soffset = 0;
 		int n = 0;
 		while ( n < max_s ) {
-			ms.reset();
-			int res = ms.match( soffset, anchor ? 1 : 0 );
+//			ms_old.reset();
+			ms_new.reset();
+//			int res_old = ms_old.match( soffset, anchor ? 1 : 0 );
+			int res = ms_new.match( soffset, anchor ? 1 : 0 );
+//			if (res_old != res) {
+//				System.out.println("oops");
+//			}
 			if ( res != -1 ) {
 				n++;
-				ms.add_value( lbuf, soffset, res, repl );
+//				ms_old.add_value( lbuf_old, soffset, res, repl );
+				ms_new.add_value( lbuf, soffset, res, repl );
 			}
 			if ( res != -1 && res > soffset )
 				soffset = res;
-			else if ( soffset < srclen )
+			else if ( soffset < srclen ) {
+//				lbuf_old.append( (byte) src.luaByte( soffset) );
 				lbuf.append( (byte) src.luaByte( soffset++ ) );
+			}
 			else
 				break;
 			if ( anchor )
@@ -652,7 +679,12 @@ public class StringLib extends TwoArgFunction {
 	 * search; its default value is 1 and may be negative.
 	 */
 	static Varargs match( Varargs args ) {
-		return str_find_aux( args, false );
+//		Varargs old_val = str_find_aux( args, false );
+		Varargs new_val = Str_find_mgr__lua.Run(args, false);
+//		if (!old_val.tojstring().equals(new_val.tojstring())) {
+//			System.out.println("oops!");
+//		}
+		return new_val;
 	}
 	
 	/**
@@ -784,7 +816,7 @@ public class StringLib extends TwoArgFunction {
 	
 	// Pattern matching implementation
 	
-	private static final int L_ESC = '%';
+	public static final int L_ESC = '%';
 	private static final LuaString SPECIALS = valueOf("^$*+?.([%-");
 	private static final int MAX_CAPTURES = 32;
 	

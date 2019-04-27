@@ -31,6 +31,8 @@ import java.io.PrintStream;
 import org.luaj.vm2.lib.MathLib;
 import org.luaj.vm2.lib.StringLib;
 
+import gplx.objects.strings.char_sources.Char_source;
+
 /**
  * Subclass of {@link LuaValue} for representing lua strings. 
  * <p>
@@ -57,7 +59,49 @@ import org.luaj.vm2.lib.StringLib;
  * @see LuaValue#valueOf(String)
  * @see LuaValue#valueOf(byte[])
  */
-public class LuaString extends LuaValue {
+public class LuaString extends LuaValue implements Char_source {
+	private String src = null;
+	public String Src() {
+		if (src == null)
+			src = decodeAsUtf8(m_bytes, m_offset, m_length);
+		return src;
+	}
+	public int Get_data(int pos) {return m_bytes[m_offset + pos] & 0x0FF;}
+	public int Len_in_data() {return m_length;}
+	public String Substring(int bgn, int end) {
+		String rv = decodeAsUtf8(m_bytes, bgn + m_offset, end - bgn);
+		return rv;
+	}
+	public int Index_of(Char_source find, int bgn) {
+		int find_len = find.Len_in_data();
+		int src_bgn = m_offset + bgn;
+		int src_end = m_offset + m_length;
+		for (int i = src_bgn; i < src_end; i++) {
+			boolean found = true;
+			for (int j = 0; j < find_len; j++) {
+				int src_idx = i + j; 
+				if (src_idx >= src_end) {
+					found = false;
+					break;					
+				}
+				if (src_idx < src_end && (m_bytes[src_idx] & 0xFF) != find.Get_data(j)) {
+					found = false;
+					break;
+				}
+			}
+			if (found == true)
+				return i - m_offset;
+		}
+		return -1;
+	}
+	public boolean Eq(int lhs_bgn, Char_source rhs, int rhs_bgn, int rhs_end) {
+		if (this.Len_in_data() < lhs_bgn + rhs_end || rhs.Len_in_data() < rhs_bgn + rhs_end)
+			return false;
+		while ( --rhs_end>=0 ) 
+			if ((this.Get_data(lhs_bgn++) != rhs.Get_data(rhs_bgn++)))
+				return false;
+		return true;
+	}
 
 	/** Size of cache of recent short strings. This is the maximum number of LuaStrings that 
 	 * will be retained in the cache of recent short strings.  */
@@ -741,8 +785,11 @@ public class LuaString extends LuaValue {
 	 */
 	public boolean isValidUtf8() {
 		// NOTE: this should be changed to handle 4+ bytes, but only called by lua <-> java converter which XOWA does not use
-		int i,j,n=0;
-		for ( i=m_offset,j=m_offset+m_length,n=0; i<j; ++n ) {
+		// TOMBSTONE:LUAJ_DEAD_CODE
+//		int i,j,n=0;
+//		for ( i=m_offset,j=m_offset+m_length,n=0; i<j; ++n ) {
+		int i,j;
+		for ( i=m_offset,j=m_offset+m_length; i<j; ) {
 			int c = m_bytes[i++];
 			if ( c >= 0 ) continue;
 			if ( ((c & 0xE0) == 0xC0) 
