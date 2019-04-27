@@ -28,8 +28,16 @@
 			<arg line="../../grammar/Lua52.jj"/>
 		</java>
 	</target>
-		
-	<target name="compile" depends="wtk-libs,bcel-lib">
+
+  <target name="compile_baselib">
+    <delete dir="build/baselib/bin"/>
+    <mkdir dir="build/baselib/bin"/>
+    <javac fork="yes" includeantruntime="false" sourcepath="" srcdir="../baselib" destdir="build/baselib/bin" classpath="lib/junit.jar">
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+  
+	<target name="compile" depends="wtk-libs,bcel-lib,compile_baselib">
 		<delete dir="build/jme/src"/>
 		<delete dir="build/jse/src"/>
 		<mkdir dir="build/jme/src"/>
@@ -39,12 +47,14 @@
 		<copy todir="build/jme/src">
 			<fileset dir="src/core"/>
 			<fileset dir="src/jme"/>
+      <fileset dir="../baselib/src"/>
 			<filterchain>
 				<tokenfilter><replacestring from='"Luaj 0.0"' to='"Luaj-jme ${version}"'/></tokenfilter>
 			</filterchain>
 		</copy>
 		<copy todir="build/jse/src">
 			<fileset dir="src/core"/>
+      <fileset dir="../baselib/src"/>
 			<filterchain>
 				<tokenfilter><replacestring from='"Luaj 0.0"' to='"Luaj-jse ${version}"'/></tokenfilter>
 			</filterchain>
