@@ -77,9 +77,10 @@ public class DebugLib extends TwoArgFunction {
 	
 	private static final LuaString LUA             = valueOf("Lua");  
 	private static final LuaString QMARK           = valueOf("?");  
-	private static final LuaString CALL            = valueOf("call");  
-	private static final LuaString LINE            = valueOf("line");  
-	private static final LuaString COUNT           = valueOf("count");  
+	private static final LuaString CALL            = valueOf("call"); 
+//  TOMBSTONE:LUAJ_DEAD_CODE
+//	private static final LuaString LINE            = valueOf("line");  
+//	private static final LuaString COUNT           = valueOf("count");  
 	private static final LuaString RETURN          = valueOf("return");
 	
 	private static final LuaString FUNC            = valueOf("func");  
@@ -331,7 +332,7 @@ public class DebugLib extends TwoArgFunction {
 	//	debug.setuservalue (udata, value)
 	final class setuservalue extends VarArgFunction { 
 		public Varargs invoke(Varargs args) {
-			Object o = args.checkuserdata(1);
+			args.checkuserdata(1);
 			LuaValue v = args.checkvalue(2);
 			LuaUserdata u = (LuaUserdata)args.arg1();
 			u.m_instance = v.checkuserdata();

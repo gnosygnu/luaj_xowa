@@ -1,4 +1,8 @@
-package org.luaj.vm2;
+package org.luaj.vm2.xowa;
+import org.luaj.vm2.LuaInteger;
+import org.luaj.vm2.LuaString;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.StringLib;
 import junit.framework.*;
 public class Xowa_tst extends TestCase {
@@ -60,10 +64,10 @@ public class Xowa_tst extends TestCase {
 		fxt.Test__find(false, "%Z", "\0");
 	}
 	public void test__find__u8() {
-		fxt.Test__find(false, "%a", "ß");	// NOTE: ß is not an alpha b/c either lua C defines isalpha as ASCII or Wikimedia uses English locale lua binaries; DATE:2016-04-17 		
+		fxt.Test__find(false, "%a", "ÃŸ");	// NOTE: ÃŸ is not an alpha b/c either lua C defines isalpha as ASCII or Wikimedia uses English locale lua binaries; DATE:2016-04-17 		
 	}
 	public void test__gsub__u8() {
-		fxt.Test__gsub("ß", "ß", "a", "a"); 
+		fxt.Test__gsub("ÃŸ", "ÃŸ", "a", "a"); 
 	}
 	public void test__format() {
 		fxt.Test__format("%.1f"	, "1.23", "1.2");		// apply precision; 1 decimal place

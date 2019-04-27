@@ -116,7 +116,7 @@ abstract public class AbstractUnitTests extends TestCase {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         Print.ps = ps;
-        new Print().printFunction(p, true);
+        Print.printFunction(p, true);
         return baos.toString();
     }
 

@@ -74,29 +74,29 @@ public class TestLuaJC {
 			e.printStackTrace();
 		}
 	}
-
-	private static void saveClasses() throws Exception {
-        // create the chunk
-		String destdir = ".";
-		
-		InputStream is = globals.FINDER.findResource(filename);
-		Hashtable t = LuaJC.instance.compileAll(is, filename, filename, globals, true);
-
-        // write out the chunk
-    	for ( Enumeration e = t.keys(); e.hasMoreElements(); ) {
-    		String key = (String) e.nextElement();
-    		byte[] bytes = (byte[]) t.get(key);
-    		String destpath = (destdir!=null? destdir+"/": "") + key + ".class";
-    		System.out.println( 
-						"chunk "+filename+
-						" from "+filename+
-						" written to "+destpath
-						+" length="+bytes.length+" bytes");
-        	FileOutputStream fos = new FileOutputStream( destpath );
-        	fos.write( bytes );
-        	fos.close();
-        }
-		
-	}
 	
+//  TOMBSTONE:LUAJ_DEAD_CODE
+//	private static void saveClasses() throws Exception {
+//        // create the chunk
+//		String destdir = ".";
+//		
+//		InputStream is = globals.FINDER.findResource(filename);
+//		Hashtable t = LuaJC.instance.compileAll(is, filename, filename, globals, true);
+//
+//        // write out the chunk
+//    	for ( Enumeration e = t.keys(); e.hasMoreElements(); ) {
+//    		String key = (String) e.nextElement();
+//    		byte[] bytes = (byte[]) t.get(key);
+//    		String destpath = (destdir!=null? destdir+"/": "") + key + ".class";
+//    		System.out.println( 
+//						"chunk "+filename+
+//						" from "+filename+
+//						" written to "+destpath
+//						+" length="+bytes.length+" bytes");
+//        	FileOutputStream fos = new FileOutputStream( destpath );
+//        	fos.write( bytes );
+//        	fos.close();
+//        }
+//		
+//	}	
 }

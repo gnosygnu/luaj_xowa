@@ -31,11 +31,9 @@ import org.luaj.vm2.lib.ZeroArgFunction;
 
 public class MetatableTest extends TestCase {
 
-	private final String samplestring = "abcdef";
 	private final Object sampleobject = new Object();
 	private final MyData sampledata = new MyData();
-	
-	private final LuaValue    string        = LuaValue.valueOf(samplestring);
+
 	private final LuaTable    table         = LuaValue.tableOf();
 	private final LuaFunction function      = new ZeroArgFunction() { public LuaValue call() { return NONE;}};
 	private final LuaThread   thread        = new LuaThread(new Globals(), function);

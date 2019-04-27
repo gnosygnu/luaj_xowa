@@ -68,9 +68,10 @@ public class LexState {
 	
 	private static final String LUA_QS(String s) { return "'"+s+"'"; }
 	private static final String LUA_QL(Object o) { return LUA_QS(String.valueOf(o)); }
-	
-	private static final int     LUA_COMPAT_LSTR   =    1; // 1 for compatibility, 2 for old behavior
-	private static final boolean LUA_COMPAT_VARARG = true;	
+
+//  TOMBSTONE:LUAJ_DEAD_CODE
+//	private static final int     LUA_COMPAT_LSTR   =    1; // 1 for compatibility, 2 for old behavior
+//	private static final boolean LUA_COMPAT_VARARG = true;	
     
     public static boolean isReservedKeyword(String varName) {
     	return RESERVED_LOCAL_VAR_KEYWORDS_TABLE.containsKey(varName);
@@ -144,7 +145,7 @@ public class LexState {
 	/*pkg*/ public Dyndata dyd = new Dyndata();  /* dynamic structures used by the parser */
 	private LuaString source;  /* current source name */
 	private LuaString envn;  /* environment variable name */
-	private byte decpoint;  /* locale decimal point */
+//	private byte decpoint;  /* locale decimal point */ // TOMBSTONE:LUAJ_DEAD_CODE
 	public byte[] Under_buff(int bgn, int end) {
 		int len = end - bgn;
 		byte[] rv = new byte[len];
@@ -305,9 +306,10 @@ public class LexState {
 		return L.newTString(new String(Copy_bry(chars, offset, len)));
 	}
 
-	private LuaString newstring( char[] chars, int offset, int len ) {
-		return L.newTString(new String(chars, offset, len));
-	}
+	// TOMBSTONE:LUAJ_DEAD_CODE
+//	private LuaString newstring( char[] chars, int offset, int len ) {
+//		return L.newTString(new String(chars, offset, len));
+//	}
 
 	private void inclinenumber() {
 		int old = current;
@@ -320,7 +322,7 @@ public class LexState {
 	}
 
 	/*pkg*/ public void setinput( LuaC L, byte firstByte, InputStream z, LuaString source ) {
-		this.decpoint = '.';
+//		this.decpoint = '.';  // TOMBSTONE:LUAJ_DEAD_CODE
 		this.L = L;
 		this.lookahead.token = TK_EOS; /* no look-ahead token */
 		this.z = z;
@@ -461,7 +463,7 @@ public class LexState {
 	}
 
 	private void read_long_string(SemInfo seminfo, int sep) {
-		int cont = 0;
+//		int cont = 0; // TOMBSTONE:LUAJ_DEAD_CODE; needed for LUA_COMPAT_LSTR
 		save_and_next(); /* skip 2nd `[' */
 		if (currIsNewline()) /* string starts with a newline? */
 			inclinenumber(); /* skip it */
@@ -474,22 +476,22 @@ public class LexState {
 			case '[': {
 				if (skip_sep() == sep) {
 					save_and_next(); /* skip 2nd `[' */
-					cont++;
-					if (LUA_COMPAT_LSTR == 1) {
+//					cont++;
+//					if (LUA_COMPAT_LSTR == 1) {
 						if (sep == 0)
 							lexerror("nesting of [[...]] is deprecated", '[');
-					}
+//					}
 				}
 				break;
 			}
 			case ']': {
 				if (skip_sep() == sep) {
 					save_and_next(); /* skip 2nd `]' */
-					if (LUA_COMPAT_LSTR == 2) {
-						cont--;
-						if (sep == 0 && cont >= 0)
-							break;
-					}
+//					if (LUA_COMPAT_LSTR == 2) {
+//						cont--;
+//						if (sep == 0 && cont >= 0)
+//							break;
+//					}
 					endloop = true;
 				}
 				break;
@@ -786,13 +788,14 @@ public class LexState {
 	// from lparser.c
 	// =============================================================
 
-	private static final boolean vkisvar(final int k) {
-		return (VLOCAL <= (k) && (k) <= VINDEXED);
-	}
-
-	private static final boolean vkisinreg(final int k) {
-		return ((k) == VNONRELOC || (k) == VLOCAL);
-	}
+	// TOMBSTONE:LUAJ_DEAD_CODE
+//	private static final boolean vkisvar(final int k) {
+//		return (VLOCAL <= (k) && (k) <= VINDEXED);
+//	}
+//
+//	private static final boolean vkisinreg(final int k) {
+//		return ((k) == VNONRELOC || (k) == VLOCAL);
+//	}
 
 	/*pkg*/ public static class expdesc {
 		int k; // expkind, from enumerated list, above
@@ -882,16 +885,16 @@ public class LexState {
 	/*----------------------------------------------------------------------
 	name		args	description
 	------------------------------------------------------------------------*/
-	
-	private void anchor_token () {
-		/* last token from outer function must be EOS */
-		LuaC._assert(fs != null || t.token == TK_EOS);
-		if (t.token == TK_NAME || t.token == TK_STRING) {
-			LuaString ts = t.seminfo.ts;
-			// TODO: is this necessary?
-			L.cachedLuaString(t.seminfo.ts);
-		}
-	}
+//	TOMBSTONE:LUAJ_DEAD_CODE
+//	private void anchor_token () {
+//		/* last token from outer function must be EOS */
+//		LuaC._assert(fs != null || t.token == TK_EOS);
+//		if (t.token == TK_NAME || t.token == TK_STRING) {
+//			LuaString ts = t.seminfo.ts;
+//			// TODO: is this necessary?
+//			L.cachedLuaString(t.seminfo.ts);
+//		}
+//	}
 
 	/* semantic error */
 	/*pkg*/ public void semerror (String msg) {
@@ -988,11 +991,12 @@ public class LexState {
 		}
 	}
 
-	private void removevars(int tolevel) {
-		FuncState fs = this.fs;
-		while (fs.nactvar > tolevel)
-			fs.getlocvar(--fs.nactvar).endpc = fs.pc;
-	}
+//	TOMBSTONE:LUAJ_DEAD_CODE
+//	private void removevars(int tolevel) {
+//		FuncState fs = this.fs;
+//		while (fs.nactvar > tolevel)
+//			fs.getlocvar(--fs.nactvar).endpc = fs.pc;
+//	}
 	
 	private void singlevar(expdesc var) {
 		LuaString varname = this.str_checkname();

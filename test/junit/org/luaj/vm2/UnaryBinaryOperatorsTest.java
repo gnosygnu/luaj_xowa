@@ -488,9 +488,9 @@ public class UnaryBinaryOperatorsTest extends TestCase {
 	}
 
 	public void testArithErrors() {
-		LuaValue ia=LuaValue.valueOf(111), ib=LuaValue.valueOf(44);
-		LuaValue da=LuaValue.valueOf(55.25), db=LuaValue.valueOf(3.5);
-		LuaValue sa=LuaValue.valueOf("22.125"), sb=LuaValue.valueOf("7.25");
+		LuaValue.valueOf(111); LuaValue.valueOf(44);
+		LuaValue.valueOf(55.25); LuaValue.valueOf(3.5);
+		LuaValue.valueOf("22.125"); LuaValue.valueOf("7.25");
 
 		String[] ops = { "add", "sub", "mul", "div", "mod", "pow" };
 		LuaValue[] vals = { LuaValue.NIL, LuaValue.TRUE, LuaValue.tableOf() };
@@ -800,9 +800,9 @@ public class UnaryBinaryOperatorsTest extends TestCase {
 
 
 	public void testCompareErrors() {
-		LuaValue ia=LuaValue.valueOf(111), ib=LuaValue.valueOf(44);
-		LuaValue da=LuaValue.valueOf(55.25), db=LuaValue.valueOf(3.5);
-		LuaValue sa=LuaValue.valueOf("22.125"), sb=LuaValue.valueOf("7.25");
+		LuaValue.valueOf(111); LuaValue.valueOf(44);
+		LuaValue.valueOf(55.25); LuaValue.valueOf(3.5);
+		LuaValue.valueOf("22.125"); LuaValue.valueOf("7.25");
 
 		String[] ops = { "lt", "lteq",  };		
 		LuaValue[] vals = { LuaValue.NIL, LuaValue.TRUE, LuaValue.tableOf() };
@@ -1117,9 +1117,9 @@ public class UnaryBinaryOperatorsTest extends TestCase {
 	}
 
 	public void testConcatErrors() {
-		LuaValue ia=LuaValue.valueOf(111), ib=LuaValue.valueOf(44);
-		LuaValue da=LuaValue.valueOf(55.25), db=LuaValue.valueOf(3.5);
-		LuaValue sa=LuaValue.valueOf("22.125"), sb=LuaValue.valueOf("7.25");
+		LuaValue.valueOf(111); LuaValue.valueOf(44);
+		LuaValue.valueOf(55.25); LuaValue.valueOf(3.5);
+		LuaValue.valueOf("22.125"); LuaValue.valueOf("7.25");
 
 		String[] ops = { "concat" };		
 		LuaValue[] vals = { LuaValue.NIL, LuaValue.TRUE, LuaValue.tableOf() };

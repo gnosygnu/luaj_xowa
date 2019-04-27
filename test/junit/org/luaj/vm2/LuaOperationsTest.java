@@ -74,19 +74,20 @@ public class LuaOperationsTest extends TestCase {
 			fail( "bad exception: "+e );
 		}
 	}
-	
-	private void throwsLuaError(String methodName, Object obj, Object arg) {
-		try {
-			LuaValue.class.getMethod(methodName,LuaValue.class).invoke(obj,arg);
-			fail("failed to throw LuaError as required");
-		} catch (InvocationTargetException e) {
-			if ( ! (e.getTargetException() instanceof LuaError) )
-				fail("not a LuaError: "+e.getTargetException());
-			return; // pass
-		} catch ( Exception e ) {
-			fail( "bad exception: "+e );
-		}
-	}
+
+//  TOMBSTONE:LUAJ_DEAD_CODE
+//	private void throwsLuaError(String methodName, Object obj, Object arg) {
+//		try {
+//			LuaValue.class.getMethod(methodName,LuaValue.class).invoke(obj,arg);
+//			fail("failed to throw LuaError as required");
+//		} catch (InvocationTargetException e) {
+//			if ( ! (e.getTargetException() instanceof LuaError) )
+//				fail("not a LuaError: "+e.getTargetException());
+//			return; // pass
+//		} catch ( Exception e ) {
+//			fail( "bad exception: "+e );
+//		}
+//	}
 	
 	public void testLen() {
 		throwsLuaError( "len", somenil );

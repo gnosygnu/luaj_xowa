@@ -382,10 +382,11 @@ public class Print extends Lua {
 	private static String id(Prototype f) {
 		return "Proto";
 	}
-	private void _assert(boolean b) {
-		if ( !b ) 
-			throw new NullPointerException("_assert failed");
-	}
+//  TOMBSTONE:LUAJ_DEAD_CODE
+//	private void _assert(boolean b) {
+//		if ( !b ) 
+//			throw new NullPointerException("_assert failed");
+//	}
 
 	/**
 	 * Print the state of a {@link LuaClosure} that is being executed

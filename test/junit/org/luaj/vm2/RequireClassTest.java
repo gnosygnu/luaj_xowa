@@ -31,7 +31,7 @@ public class RequireClassTest extends TestCase {
 	
 	public void testRequireClassLoadLuaError() {
 		try {
-			LuaValue result = require.call( LuaValue.valueOf(RequireSampleLoadLuaError.class.getName()) );
+			require.call( LuaValue.valueOf(RequireSampleLoadLuaError.class.getName()) );
 			fail( "incorrectly loaded class that threw lua error");
 		} catch ( LuaError le ) {
 			assertEquals( 
@@ -39,7 +39,7 @@ public class RequireClassTest extends TestCase {
 					le.getMessage() );
 		}
 		try {
-			LuaValue result = require.call( LuaValue.valueOf(RequireSampleLoadLuaError.class.getName()) );
+			require.call( LuaValue.valueOf(RequireSampleLoadLuaError.class.getName()) );
 			fail( "incorrectly loaded class that threw lua error");
 		} catch ( LuaError le ) {
 			assertEquals( 
@@ -50,7 +50,7 @@ public class RequireClassTest extends TestCase {
 	
 	public void testRequireClassLoadRuntimeException() {
 		try {
-			LuaValue result = require.call( LuaValue.valueOf(RequireSampleLoadRuntimeExcep.class.getName()) );
+			require.call( LuaValue.valueOf(RequireSampleLoadRuntimeExcep.class.getName()) );
 			fail( "incorrectly loaded class that threw runtime exception");
 		} catch ( RuntimeException le ) {
 			assertEquals( 
@@ -58,7 +58,7 @@ public class RequireClassTest extends TestCase {
 					le.getMessage() );
 		}
 		try {
-			LuaValue result = require.call( LuaValue.valueOf(RequireSampleLoadRuntimeExcep.class.getName()) );
+			require.call( LuaValue.valueOf(RequireSampleLoadRuntimeExcep.class.getName()) );
 			fail( "incorrectly loaded class that threw runtime exception");
 		} catch ( LuaError le ) {
 			assertEquals( 
@@ -67,10 +67,9 @@ public class RequireClassTest extends TestCase {
 		}
 	}
 	
-	
 	public void testRequireClassClassCastException() {
 		try {
-			LuaValue result = require.call( LuaValue.valueOf(RequireSampleClassCastExcep.class.getName()) );
+			require.call( LuaValue.valueOf(RequireSampleClassCastExcep.class.getName()) );
 			fail( "incorrectly loaded class that threw class cast exception");
 		} catch ( LuaError le ) {
 			String msg = le.getMessage();
@@ -78,7 +77,7 @@ public class RequireClassTest extends TestCase {
 				fail( "expected 'not found' message but got "+msg );
 		}
 		try {
-			LuaValue result = require.call( LuaValue.valueOf(RequireSampleClassCastExcep.class.getName()) );
+			require.call( LuaValue.valueOf(RequireSampleClassCastExcep.class.getName()) );
 			fail( "incorrectly loaded class that threw class cast exception");
 		} catch ( LuaError le ) {
 			String msg = le.getMessage();

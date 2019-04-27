@@ -259,7 +259,6 @@ public class TableHashTest extends TestCase {
 		Varargs entry = t.next(LuaValue.NIL);
 		while ( !entry.isnil(1) ) {
 			LuaValue k = entry.arg1();
-			LuaValue v = entry.arg(2);
 			if ( ( k.toint() & 1 ) == 0 ) {
 				t.set( k, LuaValue.NIL );
 			}

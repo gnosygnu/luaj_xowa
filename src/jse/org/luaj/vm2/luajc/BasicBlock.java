@@ -102,7 +102,7 @@ public class BasicBlock {
 	}
 	
 	public static void visitBranches( Prototype p, BranchVisitor visitor ) {
-		int sbx,j,c;
+		int sbx,j;
 		int[] code = p.code;
 		int n = code.length;
 		for ( int i=0; i<n; i++ ) {

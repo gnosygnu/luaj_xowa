@@ -62,7 +62,8 @@ private int jjMoveNfa_11(int startState, int curPos)
          ReInitRounds();
       if (curChar < 64)
       {
-         long l = 1L << curChar;
+    	 // TOMBSTONE:LUAJ_DEAD_CODE
+         // long l = 1L << curChar;
          do
          {
             switch(jjstateSet[--i])
@@ -90,7 +91,8 @@ private int jjMoveNfa_11(int startState, int curPos)
       }
       else if (curChar < 128)
       {
-         long l = 1L << (curChar & 077);
+    	 // TOMBSTONE:LUAJ_DEAD_CODE
+         // long l = 1L << (curChar & 077);
          do
          {
             switch(jjstateSet[--i])
@@ -109,11 +111,12 @@ private int jjMoveNfa_11(int startState, int curPos)
       }
       else
       {
-         int hiByte = (int)(curChar >> 8);
-         int i1 = hiByte >> 6;
-         long l1 = 1L << (hiByte & 077);
-         int i2 = (curChar & 0xff) >> 6;
-         long l2 = 1L << (curChar & 077);
+//  	   TOMBSTONE:LUAJ_DEAD_CODE
+//         int hiByte = (int)(curChar >> 8);
+//         int i1 = hiByte >> 6;
+//         long l1 = 1L << (hiByte & 077);
+//         int i2 = (curChar & 0xff) >> 6;
+//         long l2 = 1L << (curChar & 077);
          do
          {
             switch(jjstateSet[--i])
@@ -1381,7 +1384,8 @@ private int jjMoveNfa_1(int startState, int curPos)
       }
       else if (curChar < 128)
       {
-         long l = 1L << (curChar & 077);
+    	 // TOMBSTONE:LUAJ_DEAD_CODE
+         // long l = 1L << (curChar & 077);
          do
          {
             switch(jjstateSet[--i])
@@ -1448,7 +1452,8 @@ private int jjMoveNfa_6(int startState, int curPos)
          ReInitRounds();
       if (curChar < 64)
       {
-         long l = 1L << curChar;
+    	 // TOMBSTONE:LUAJ_DEAD_CODE
+         // long l = 1L << curChar;
          do
          {
             switch(jjstateSet[--i])
@@ -1476,7 +1481,8 @@ private int jjMoveNfa_6(int startState, int curPos)
       }
       else if (curChar < 128)
       {
-         long l = 1L << (curChar & 077);
+    	 // TOMBSTONE:LUAJ_DEAD_CODE
+         // long l = 1L << (curChar & 077);
          do
          {
             switch(jjstateSet[--i])
@@ -1495,11 +1501,12 @@ private int jjMoveNfa_6(int startState, int curPos)
       }
       else
       {
-         int hiByte = (int)(curChar >> 8);
-         int i1 = hiByte >> 6;
-         long l1 = 1L << (hiByte & 077);
-         int i2 = (curChar & 0xff) >> 6;
-         long l2 = 1L << (curChar & 077);
+//  	   TOMBSTONE:LUAJ_DEAD_CODE
+//         int hiByte = (int)(curChar >> 8);
+//         int i1 = hiByte >> 6;
+//         long l1 = 1L << (hiByte & 077);
+//         int i2 = (curChar & 0xff) >> 6;
+//         long l2 = 1L << (curChar & 077);
          do
          {
             switch(jjstateSet[--i])
@@ -1770,8 +1777,9 @@ private final int[] jjrounds = new int[66];
 private final int[] jjstateSet = new int[132];
 private final StringBuffer jjimage = new StringBuffer();
 private StringBuffer image = jjimage;
-private int jjimageLen;
-private int lengthOfMatch;
+//TOMBSTONE:LUAJ_DEAD_CODE
+//private int jjimageLen;
+//private int lengthOfMatch;
 protected char curChar;
 /** Constructor. */
 public LuaParserTokenManager(SimpleCharStream stream){
@@ -1884,7 +1892,7 @@ public Token getNextToken()
    }
    image = jjimage;
    image.setLength(0);
-   jjimageLen = 0;
+//   jjimageLen = 0;
 
    for (;;)
    {
@@ -2029,7 +2037,7 @@ public Token getNextToken()
            curLexState = jjnewLexState[jjmatchedKind];
            continue EOFLoop;
         }
-        jjimageLen += jjmatchedPos + 1;
+//        jjimageLen += jjmatchedPos + 1;
       if (jjnewLexState[jjmatchedKind] != -1)
         curLexState = jjnewLexState[jjmatchedKind];
         curPos = 0;

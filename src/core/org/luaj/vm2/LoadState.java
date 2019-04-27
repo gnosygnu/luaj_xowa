@@ -134,13 +134,13 @@ public class LoadState implements Globals.Undumper {
 	public static final int LUAC_HEADERSIZE		= 12;
 
 	// values read from the header
-	private int     luacVersion;
-	private int     luacFormat;
+//	private int     luacVersion;
+//	private int     luacFormat;
 	private boolean luacLittleEndian;
-	private int     luacSizeofInt;
+//	private int     luacSizeofInt;
 	private int     luacSizeofSizeT;
-	private int     luacSizeofInstruction;
-	private int     luacSizeofLuaNumber;
+//	private int     luacSizeofInstruction;
+//	private int     luacSizeofLuaNumber;
 	private int 	luacNumberFormat;
 
 	/** input stream from which we are loading */
@@ -152,7 +152,7 @@ public class LoadState implements Globals.Undumper {
 	private static final LuaValue[]     NOVALUES    = {};
 	private static final Prototype[] NOPROTOS    = {};
 	private static final LocVars[]   NOLOCVARS   = {};
-	private static final LuaString[]  NOSTRVALUES = {};
+//	private static final LuaString[]  NOSTRVALUES = {};
 	private static final Upvaldesc[]  NOUPVALDESCS = {};
 	private static final int[]       NOINTS      = {};
 	
@@ -367,13 +367,14 @@ public class LoadState implements Globals.Undumper {
 	 * @throws IOException if an i/o exception occurs. 
 	 */
 	public void loadHeader() throws IOException {
-		luacVersion = is.readByte();
-		luacFormat = is.readByte();
+		// TOMBSTONE:LUAJ_DEAD_CODE
+		is.readByte(); // luacVersion 
+		is.readByte();  // luacFormat
 		luacLittleEndian = (0 != is.readByte());
-		luacSizeofInt = is.readByte();
+		is.readByte(); // luacSizeofInt
 		luacSizeofSizeT = is.readByte();
-		luacSizeofInstruction = is.readByte();
-		luacSizeofLuaNumber = is.readByte();
+		is.readByte(); // luacSizeofInstruction
+		is.readByte(); // luacSizeofLuaNumber
 		luacNumberFormat = is.readByte();
 		for (int i=0; i < LUAC_TAIL.length; ++i)
 			if (is.readByte() != LUAC_TAIL[i])
