@@ -1,9 +1,9 @@
-package org.luaj.vm2.xowa;
+package org.luaj.vm2.lib;
 import org.luaj.vm2.LuaInteger;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.StringLib;
+
 import junit.framework.*;
 public class Xowa_tst extends TestCase {
 	private final Xowa_fxt fxt = new Xowa_fxt();

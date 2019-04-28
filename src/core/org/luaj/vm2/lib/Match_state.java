@@ -103,7 +103,6 @@ public class Match_state {
 		}
 
 		if (!repl.toboolean()) { // nil or false?
-// this looks broken; re-assignment by pointer value?
 			repl = LuaValue.valueOf(src.Substring(src_pos, str_end)); // keep original text
 		} else if (!repl.isstring()) {
 			LuaValue.error("invalid replacement value (a " + repl.typename() + ")");

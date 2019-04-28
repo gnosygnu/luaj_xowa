@@ -2195,8 +2195,5 @@ public class LexState {
 		  statlist();  /* parse main body */
 		  check(TK_EOS);
 		  close_func();
-	}
-	
-	/* }====================================================================== */
-		
+	}		
 }

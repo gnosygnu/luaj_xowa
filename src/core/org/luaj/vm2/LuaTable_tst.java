@@ -1,8 +1,6 @@
-package org.luaj.vm2.xowa;
+package org.luaj.vm2;
 
 import org.junit.*;
-import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaTable;
 
 public class LuaTable_tst {
 	@Test public void set_should_not_autocast_strings_to_int() {

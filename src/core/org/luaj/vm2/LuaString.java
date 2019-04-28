@@ -84,7 +84,7 @@ public class LuaString extends LuaValue implements Char_source {
 					found = false;
 					break;					
 				}
-				if (src_idx < src_end && (m_bytes[src_idx] & 0xFF) != find.Get_data(j)) {
+				if ((m_bytes[src_idx] & 0xFF) != find.Get_data(j)) {
 					found = false;
 					break;
 				}
