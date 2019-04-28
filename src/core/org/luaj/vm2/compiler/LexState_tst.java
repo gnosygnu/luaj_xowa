@@ -17,7 +17,6 @@ public class LexState_tst {
 		fxt.Test__var("a¢z");   // 2-byte
 		fxt.Test__var("a€z");   // 3-byte
 		fxt.Test__var("a𤭢z");  // 4-byte
-		fxt.Test__var("a𣂁z");	// 4-byte
 	}
 	@Test  public void Gsub() {
 		fxt.Test__gsub("abcdz", "bcd", "n", "anz");
@@ -67,6 +66,6 @@ class LexState_fxt {
 		ByteArrayInputStream is = new ByteArrayInputStream(script.getBytes(Charset.forName("UTF-8")));
 		Globals globals = JsePlatform.standardGlobals();
 		LuaValue chunk = globals.load(is, "script", "t", globals);
-		return chunk.call();		
+		return chunk.call();
 	}
 }

@@ -2,5 +2,5 @@ eclipse.preferences.version=1
 encoding//src/core/org/luaj/vm2/LuaString.java=UTF-8
 encoding//src/core/org/luaj/vm2/LuaString_tst.java=UTF-8
 encoding//src/core/org/luaj/vm2/compiler/LexState.java=UTF-8
-encoding//src/core/org/luaj/vm2/compiler/LexState_tst.java=UTF-8
 encoding//src/core/org/luaj/vm2/lib/Xowa_tst.java=UTF-8
+encoding/<project>=UTF-8
