@@ -35,6 +35,7 @@ public abstract class Str_find_mgr {
 	protected abstract Varargs    Result__make__match();
 	protected abstract Varargs    Result__make__nil();
 	protected void                Result__make__bgn_end(int bgn, int end) {}
+	public abstract Str_char_class_mgr Char_class_mgr();
 	public Varargs Process(boolean adjust_base1) {
 		// adjust_base1 will be false when called by Scrib_pattern_matcher_xowa
 		if (adjust_base1) {

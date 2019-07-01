@@ -11,6 +11,7 @@ public class Str_find_mgr__xowa extends Str_find_mgr {
 	public Str_find_mgr__xowa(Char_source src, Char_source pat, int src_bgn, boolean plain, boolean find) {
 		super(src, pat, src_bgn, plain, find);
 	}
+	@Override public Str_char_class_mgr Char_class_mgr() {return char_class_mgr;} private final Str_char_class_mgr char_class_mgr = new Str_char_class_mgr__unicode();
 	public int Bgn() {return bgn;} private int bgn = -1;
 	public int End() {return end;} private int end = -1;
 	public int[] Captures_ary() {return captures_ary;} private int[] captures_ary = null;

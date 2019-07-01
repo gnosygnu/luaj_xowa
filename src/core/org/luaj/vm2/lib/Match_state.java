@@ -9,6 +9,7 @@ import gplx.objects.strings.char_sources.*;
 
 public class Match_state {
 	private final Str_find_mgr find_mgr;
+	private final Str_char_class_mgr char_class_mgr;
 	private final Char_source src;
 	private final Char_source pat;
 	private final int src_len;
@@ -19,6 +20,7 @@ public class Match_state {
 
 	public Match_state(Str_find_mgr find_mgr) {
 		this.find_mgr = find_mgr;
+		this.char_class_mgr = find_mgr.Char_class_mgr();
 		this.src = find_mgr.src;
 		this.src_len = find_mgr.src_len;
 		this.pat = find_mgr.pat;
@@ -220,27 +222,6 @@ public class Match_state {
 		}
 	}
 
-	private boolean match_class(int cur, int cls) {
-		final char cls_lower = Character.toLowerCase((char)cls);
-		int char_data = cur == -1 ? 0 : cur > 128 ? 0 : CHAR_TABLE[cur];	// XOWA: handle cur == -1 else bounds error; note that match passes in -1 deliberately: "int previous = (soffset == 0) ? -1..."; DATE:2014-08-14 
-
-		boolean res;
-		switch (cls_lower) {
-			case 'a': res = (char_data & MASK_ALPHA) != 0; break;
-			case 'd': res = (char_data & MASK_DIGIT) != 0; break;
-			case 'l': res = (char_data & MASK_LOWERCASE) != 0; break;
-			case 'u': res = (char_data & MASK_UPPERCASE) != 0; break;
-			case 'c': res = (char_data & MASK_CONTROL) != 0; break;
-			case 'p': res = (char_data & MASK_PUNCT) != 0; break;
-			case 's': res = (char_data & MASK_SPACE) != 0; break;
-			case 'w': res = (char_data & (MASK_ALPHA | MASK_DIGIT)) != 0; break;
-			case 'x': res = (char_data & MASK_HEXDIGIT) != 0; break;
-			case 'z': res = (cur == 0); break;
-			default: return cls == cur;
-		}
-		return (cls_lower == cls) ? res : !res;
-	}
-
 	private boolean matchbracketclass(int cur, int pat_pos, int ep) {
 		boolean sig = true;
 		if (pat.Get_data(pat_pos + 1) == '^') {
@@ -250,7 +231,7 @@ public class Match_state {
 		while (++pat_pos < ep) {
 			if (pat.Get_data(pat_pos) == StringLib.L_ESC) {
 				pat_pos++;
-				if (match_class(cur, pat.Get_data(pat_pos)))
+				if (char_class_mgr.Match_class(cur, pat.Get_data(pat_pos)))
 					return sig;
 			}
 			else if ((pat.Get_data(pat_pos + 1) == '-') && (pat_pos + 2 < ep)) {
@@ -266,7 +247,7 @@ public class Match_state {
 	private boolean singlematch(int cur, int pat_pos, int ep) {
 		switch (pat.Get_data(pat_pos)) {
 			case '.': return true;
-			case StringLib.L_ESC: return match_class(cur, pat.Get_data(pat_pos + 1));
+			case StringLib.L_ESC: return char_class_mgr.Match_class(cur, pat.Get_data(pat_pos + 1));
 			case '[': return matchbracketclass(cur, pat_pos, ep - 1);
 			default: return pat.Get_data(pat_pos) == cur;
 		}
@@ -444,51 +425,5 @@ public class Match_state {
 	private static final int MAX_CAPTURES = 32;
 	private static final int CAP_UNFINISHED = -1;
 	public static final int CAP_POSITION = -2;
-
-	private static final byte MASK_ALPHA		= 0x01;
-	private static final byte MASK_LOWERCASE	= 0x02;
-	private static final byte MASK_UPPERCASE	= 0x04;
-	private static final byte MASK_DIGIT		= 0x08;
-	private static final byte MASK_PUNCT		= 0x10;
-	private static final byte MASK_SPACE		= 0x20;
-	private static final byte MASK_CONTROL		= 0x40;
-	private static final byte MASK_HEXDIGIT		= (byte)0x80;
-
-	// lookup table for quick isalpha, islower, etc
-	public static final byte[] CHAR_TABLE = makeCharTable();
-	private static byte[] makeCharTable() {
-		byte[] rv = new byte[256];
-		for ( int i = 0; i < 128; ++i ) {	// XOWA: was "i < 256"; NOTE: either lua C defines isalpha as ASCII or Wikimedia uses English locale lua binaries; DATE:2016-04-17
-			final char c = (char) i;
-			rv[i] = (byte) ((Character.isDigit(c)     ? MASK_DIGIT     : 0)
-							       |(Character.isLowerCase(c) ? MASK_LOWERCASE : 0)
-							       |(Character.isUpperCase(c) ? MASK_UPPERCASE : 0)
-							       |((c < ' ' || c == 0x7F)   ? MASK_CONTROL   : 0)
-							       );
-			if  (  (c >= 'a' && c <= 'f')
-			    || (c >= 'A' && c <= 'F')
-			    || (c >= '0' && c <= '9')
-			    ) {
-				rv[i] |= MASK_HEXDIGIT;
-			}
-			if  (	(c >= '!' && c <= '/') 
-				||	(c >= ':' && c <= '@')
-				) {
-				rv[i] |= MASK_PUNCT;
-			}
-			if  ((rv[i] & (MASK_LOWERCASE | MASK_UPPERCASE)) != 0) {
-				rv[i] |= MASK_ALPHA;
-			}
-		}
-
-		rv[' ']   = MASK_SPACE;
-		rv['\r'] |= MASK_SPACE;
-		rv['\n'] |= MASK_SPACE;
-		rv['\t'] |= MASK_SPACE;
-		rv[0x0C] |= MASK_SPACE;  // '\v'
-		rv['\f'] |= MASK_SPACE;
-		
-		return rv;
-	};
 }
 

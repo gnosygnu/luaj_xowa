@@ -13,7 +13,8 @@ class Str_find_mgr__lua extends Str_find_mgr {
 
 	public Str_find_mgr__lua(LuaString src, LuaString pat, int src_bgn, boolean plain, boolean find) {
 		super(src, pat, src_bgn, plain, find);
-	}		
+	}
+	@Override public Str_char_class_mgr Char_class_mgr() {return char_class_mgr;} private final Str_char_class_mgr char_class_mgr = new Str_char_class_mgr__ascii();
 	@Override protected void reset() {
 		this.captures_ary = null;
 		this.captures_idx = 0;
