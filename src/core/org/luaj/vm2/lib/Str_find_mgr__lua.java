@@ -29,7 +29,9 @@ class Str_find_mgr__lua extends Str_find_mgr {
 		return captures_ary == null ? LuaValue.NONE : LuaValue.varargsOf(captures_ary);
 	}
 	@Override protected LuaValue Capture__make__string(boolean register_capture, int bgn, int end) {
-		LuaValue rv = LuaString.valueOf(src.Substring(bgn, end));
+		// NOTE:cannot use Substring b/c Java will "fix" malformed bytes which will break things like "æ".Substring(0, 1); ISSUE#:504; DATE:2019-07-22
+		// LuaValue rv = LuaString.valueOf(src.Substring(bgn, end));
+		LuaString rv = LuaString.valueOfCopy(((LuaString)src).m_bytes, bgn, end - bgn);
 		if (register_capture)
 			captures_ary[captures_idx++] = rv;
 		return rv;		

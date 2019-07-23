@@ -19,7 +19,12 @@ public class Luaj_fxt {
 					lv = LuaNumber.valueOf((Integer)itm);
 					break;
 				default:
-					throw Err_.New_unhandled_default(itm_type);
+					if (itm instanceof LuaFunction) {
+						lv = (LuaFunction)itm;
+					}
+					else {
+						throw Err_.New_unhandled_default(itm_type);
+					}
 			}
 			rv[i] = lv;
 		}		
