@@ -10,21 +10,24 @@ public class Luaj_fxt {
 		for (int i = 0; i < ary_len; i++) {
 			Object itm = ary[i];
 			LuaValue lv = null;
-			int itm_type = Type_ids_.To_id_by_obj(itm);
-			switch (itm_type) {
-				case Type_ids_.Id__str:
-					lv = LuaString.valueOf((String)itm);
-					break;
-				case Type_ids_.Id__int:
-					lv = LuaNumber.valueOf((Integer)itm);
-					break;
-				default:
-					if (itm instanceof LuaFunction) {
-						lv = (LuaFunction)itm;
-					}
-					else {
+			if (itm instanceof LuaFunction) {
+				lv = (LuaFunction)itm;
+			}
+			else if (itm instanceof LuaString) {
+				lv = (LuaString)itm;
+			}
+			else {
+				int itm_type = Type_ids_.To_id_by_obj(itm);
+				switch (itm_type) {
+					case Type_ids_.Id__str:
+						lv = LuaString.valueOf((String)itm);
+						break;
+					case Type_ids_.Id__int:
+						lv = LuaNumber.valueOf((Integer)itm);
+						break;
+					default:
 						throw Err_.New_unhandled_default(itm_type);
-					}
+				}
 			}
 			rv[i] = lv;
 		}		

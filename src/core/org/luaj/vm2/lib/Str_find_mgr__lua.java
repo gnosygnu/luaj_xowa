@@ -31,7 +31,8 @@ class Str_find_mgr__lua extends Str_find_mgr {
 	@Override protected LuaValue Capture__make__string(boolean register_capture, int bgn, int end) {
 		// NOTE:cannot use Substring b/c Java will "fix" malformed bytes which will break things like "æ".Substring(0, 1); ISSUE#:504; DATE:2019-07-22
 		// LuaValue rv = LuaString.valueOf(src.Substring(bgn, end));
-		LuaString rv = LuaString.valueOfCopy(((LuaString)src).m_bytes, bgn, end - bgn);
+		LuaString src_as_lstr = (LuaString)src;
+		LuaString rv = LuaString.valueOfCopy(src_as_lstr.m_bytes, src_as_lstr.m_offset + bgn, end - bgn); // NOTE:must account for m_offset; ISSUE#:520; DATE:2019-07-25
 		if (register_capture)
 			captures_ary[captures_idx++] = rv;
 		return rv;		
