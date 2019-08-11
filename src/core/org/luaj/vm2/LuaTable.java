@@ -456,6 +456,36 @@ public class LuaTable extends LuaValue implements Metatable {
 		return v.isnil()? NONE: varargsOf(LuaInteger.valueOf(k),v);
 	}
 
+	/** 
+	 * Call the supplied function once for each key-value pair
+	 * 
+	 * @param func function to call
+	 */
+	public LuaValue foreach(LuaValue func) {
+		Varargs n;
+		LuaValue k = NIL;
+		LuaValue v;
+		while ( !(k = ((n = next(k)).arg1())).isnil() )
+			if ( ! (v = func.call(k, n.arg(2))).isnil() )
+				return v;
+		return NIL;
+	}
+
+	
+	/** 
+	 * Call the supplied function once for each key-value pair 
+	 * in the contiguous array part
+	 * 
+	 * @param func
+	 */
+	public LuaValue foreachi(LuaValue func) {
+		LuaValue v,r;
+		for ( int k=0; !(v = rawget(++k)).isnil(); )
+			if ( ! (r = func.call(valueOf(k), v)).isnil() )
+				return r;
+		return NIL;
+	}
+
 	/**
 	 * Set a hashtable value
 	 * @param key key to set

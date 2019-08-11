@@ -67,6 +67,8 @@ public class TableLib extends TwoArgFunction {
 		table.set("maxn", new maxn());
 		table.set("sort", new sort());
 		table.set("unpack", new unpack());
+		table.set("foreach", new foreach());
+		table.set("foreachi", new foreachi());
 		env.set("table", table);
 		env.get("package").get("loaded").set("table", table);
 		return NIL;
@@ -166,6 +168,20 @@ public class TableLib extends TwoArgFunction {
 			case 2: return t.unpack(bgn);
 			default: return t.unpack(bgn, end);
 			}
+		}
+	}
+
+	// "foreach", // (table, func) -> void
+	static class foreach extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			return args.checktable(1).foreach(args.checkfunction(2));
+		}
+	}
+
+	// "foreachi", // (table, func) -> void
+	static class foreachi extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			return args.checktable(1).foreachi(args.checkfunction(2));
 		}
 	}
 }
