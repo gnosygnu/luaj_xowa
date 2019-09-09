@@ -27,7 +27,7 @@ public class Luaj_script_fxt {
 			script += lines[i];
 		}
 		return this;
-	} 
+	}
 	public void Test(String expd) {
 		Prototype prototype = New_prototype(globals, script);
         LuaFunction function = new LuaClosure(prototype, globals);

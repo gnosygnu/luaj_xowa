@@ -18,11 +18,11 @@ public class StringLib_gfind_tst {
 	private final StringLib_fxt fxt = new StringLib_fxt();
 	
 	@Test public void Gfind__char_class() {
-		fxt.Test__gfind("ab cd", "%w+", 0); // PURPOSE:LUAJ_PATTERN_REPLACEMENT; DATE:2019-04-28
+		fxt.Test__gmatch("ab cd", "%w+", 0); // PURPOSE:LUAJ_PATTERN_REPLACEMENT; DATE:2019-04-28
 	}
 
 	@Test public void Gfind__smoke_1() {
-		fxt.Test__gfind("A/B/C", "^[^/]*().*()/[^/]*$", 0); // PURPOSE:LUAJ_PATTERN_REPLACEMENT; DATE:2019-04-28
+		fxt.Test__gmatch("A/B/C", "^[^/]*().*()/[^/]*$", 0); // PURPOSE:LUAJ_PATTERN_REPLACEMENT; DATE:2019-04-28
 	}	
 
 	@Test public void Match__offset() {// FIX:need to account for m_offset ISSUE#:520; DATE:2019-07-25
@@ -30,7 +30,7 @@ public class StringLib_gfind_tst {
 	}	
 }
 class StringLib_fxt {
-	public void Test__gfind(String src, String pat, int expd) {
+	public void Test__gmatch(String src, String pat, int expd) {
 		Varargs args = Luaj_fxt.New_varargs(src, pat, expd);
 		Varargs actl = StringLib.gmatch(args);
 		Gftest_fxt.Eq__int(expd, actl.toint(0));
@@ -39,5 +39,10 @@ class StringLib_fxt {
 		Varargs args = Luaj_fxt.New_varargs(src, pat, pos);
 		Varargs actl = StringLib.match(args);
 		Gftest_fxt.Eq__str(expd, actl.tojstring());
+	}
+	public void Test__gsub(String src, String pat, String repl, String expd) {
+		Varargs args = Luaj_fxt.New_varargs(src, pat, repl);
+		Varargs actl = StringLib.gsub(args);
+		Gftest_fxt.Eq__str(expd, actl.tojstring(1));
 	}
 }

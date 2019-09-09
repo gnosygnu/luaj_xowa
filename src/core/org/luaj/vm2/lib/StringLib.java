@@ -817,6 +817,7 @@ public class StringLib extends TwoArgFunction {
 	// Pattern matching implementation
 	
 	public static final int L_ESC = '%';
+	public static final String L_ESC_STRING = "%";
 	private static final LuaString SPECIALS = valueOf("^$*+?.([%-");
 	private static final int MAX_CAPTURES = 32;
 	

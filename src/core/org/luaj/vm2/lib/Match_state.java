@@ -43,6 +43,10 @@ public class Match_state {
 				lbuf.append((byte)b);
 			} else {
 				i++; // skip ESC
+				if (i == l) {// handle ESC at EOS; ISSUE#:571; DATE:2019-09-08
+					lbuf.append(StringLib.L_ESC_STRING);
+					break;
+				}
 				b = (byte)new_s.Get_data(i);
 				if (!Character.isDigit((char)b)) {
 					lbuf.append(b);
