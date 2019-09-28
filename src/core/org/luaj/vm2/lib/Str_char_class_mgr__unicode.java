@@ -27,7 +27,16 @@ public class Str_char_class_mgr__unicode extends Str_char_class_mgr {
 				break;
 			case CLASS_DIGIT: // "\\p{Nd}"; REF:https://github.com/AdoptOpenJDK/openjdk-jdk8u/blob/master/jdk/src/share/classes/java/util/regex/Pattern.java#L5614
 				char_type = Character.getType(cp);
-				res = char_type == Character.DECIMAL_DIGIT_NUMBER;
+				switch (char_type) {
+					case Character.DECIMAL_DIGIT_NUMBER:
+					case Character.LETTER_NUMBER:
+					case Character.OTHER_NUMBER:
+						res = true;
+						break;
+					default:
+						res = false;
+						break;
+				}
 				break;
 			case CLASS_LOWER: // "\\p{Ll}"; REF:https://github.com/AdoptOpenJDK/openjdk-jdk8u/blob/master/jdk/src/share/classes/java/util/regex/Pattern.java#L5607
 				char_type = Character.getType(cp);
@@ -60,7 +69,7 @@ public class Str_char_class_mgr__unicode extends Str_char_class_mgr {
 						case Character.SPACE_SEPARATOR:
 						case Character.LINE_SEPARATOR:
 						case Character.PARAGRAPH_SEPARATOR:
-						case Character.CONNECTOR_PUNCTUATION:
+						// case Character.CONNECTOR_PUNCTUATION:   // do not include CONNECTOR_PUNCTUATION b/c it includes "_"; ISSUE#:582 DATE:2019-09-28
 							res = true;
 							break;
 						default:
@@ -86,6 +95,8 @@ public class Str_char_class_mgr__unicode extends Str_char_class_mgr {
 						case Character.COMBINING_SPACING_MARK:
 						case Character.DECIMAL_DIGIT_NUMBER:
 						case Character.CONNECTOR_PUNCTUATION:
+						case Character.LETTER_NUMBER: // expand word to include LETTER_NUMBER / OTHER_NUMBER since Word should equal Letter + Number; ISSUE#:582 DATE:2019-09-28
+						case Character.OTHER_NUMBER:
 							res = true;
 							break;
 						default:
@@ -112,4 +123,27 @@ public class Str_char_class_mgr__unicode extends Str_char_class_mgr {
 		}
 		return (cls_lower == cls) ? res : !res;
 	}
+/*
+== UstringLibrary_APPROXIMATION ==
+* This approximates the MediaWiki UstringLibrary.php section below
+* Most of the mapping from PHP to Java is based on https://www.regular-expressions.info/unicode.html
+* Note that Java has different definitions of what different Unicode categories. Particularly:
+  * CLASS_SPACE: should not have CONNECTOR_PUNCTUATION
+  * CLASS_DIGIT: should not have LETTER_NUMBER, OTHER_NUMBER
+  * CLASS_ALPHA: should have CASED_LETTER?
+
+=== /extensions/Scribunto/engines/LuaCommon/UstringLibrary.php ===
+// If you change these, also change lualib/ustring/make-tables.php
+// (and run it to regenerate charsets.lua)
+'a' => '\p{L}',
+'c' => '\p{Cc}',
+'d' => '\p{Nd}',
+'l' => '\p{Ll}',
+'p' => '\p{P}',
+'s' => '\p{Xps}',
+'u' => '\p{Lu}',
+'w' => '[\p{L}\p{Nd}]',
+'x' => '[0-9A-Fa-f０-９Ａ-Ｆａ-ｆ]',
+'z' => '\0',
+*/
 }
