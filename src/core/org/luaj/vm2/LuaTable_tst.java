@@ -40,5 +40,10 @@ public class LuaTable_tst {
 			, "return rv;"
 			);
 		fxt.Test("1=a;2=b;");
-	}	
+	}
+	@Test public void remove_on_empty_table_should_return_nil_not_none() { // ISSUE#:604; DATE:2019-10-30
+		LuaTable tbl = new LuaTable();
+		LuaValue nil = tbl.remove(1); // should return NIL, not NONE
+		Assert.assertEquals(LuaValue.NIL.getClass(), nil.getClass()); // NOTE: need to compare classes because LuaValue.NONE extends LuaValue.NIL
+	}
 }

@@ -306,7 +306,7 @@ public class LuaTable extends LuaValue implements Metatable {
 		if ( pos == 0 )
 			pos = n;
 		else if (pos > n)
-			return NONE;
+			return NIL; // ISSUE#:604; should return NIL, not NONE; ltablib.tremove returns 0; DATE:2019-10-30
 		LuaValue v = rawget(pos);
 
 		// XOWA:fails to handle removal of 1st element if it is nil; DATE:2016-10-18 
@@ -320,7 +320,7 @@ public class LuaTable extends LuaValue implements Metatable {
 			rawset(pos++, r);
 		} while (!r.isnil());
 		
-		return v.isnil()? NONE: v;
+		return v.isnil()? NIL: v; // ISSUE#:604; should return NIL, not NONE; ltablib.tremove returns 0; DATE:2019-10-30
 	}
 
 	/** Insert an element at a position in a list-table
