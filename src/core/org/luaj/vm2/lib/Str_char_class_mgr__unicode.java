@@ -1,5 +1,6 @@
 package org.luaj.vm2.lib;
 
+// FOOTNOTE: UstringLibrary_APPROXIMATION
 public class Str_char_class_mgr__unicode extends Str_char_class_mgr {
 	@Override public boolean Match_class(int cp, int cls) {
 		final int cls_lower = cls < 97 ? cls + 32 : cls;
@@ -29,10 +30,10 @@ public class Str_char_class_mgr__unicode extends Str_char_class_mgr {
 				char_type = Character.getType(cp);
 				switch (char_type) {
 					case Character.DECIMAL_DIGIT_NUMBER:
-					case Character.LETTER_NUMBER:
-					case Character.OTHER_NUMBER:
 						res = true;
 						break;
+					case Character.LETTER_NUMBER: // NOTE: LETTER_NUMBER / OTHER_NUMBER is not p{Nd}; FOOTNOTE:Superscript_is_not_a_DIGIT; ISSUE#:617; DATE:2019-11-24
+					case Character.OTHER_NUMBER:
 					default:
 						res = false;
 						break;
@@ -131,6 +132,44 @@ public class Str_char_class_mgr__unicode extends Str_char_class_mgr {
   * CLASS_SPACE: should not have CONNECTOR_PUNCTUATION
   * CLASS_DIGIT: should not have LETTER_NUMBER, OTHER_NUMBER
   * CLASS_ALPHA: should have CASED_LETTER?
+
+== Superscript_is_not_a_DIGIT ==
+* %d is defined as "\p{Nd}"
+** "'d' => '\p{Nd}',": https://github.com/wikimedia/mediawiki-extensions-Scribunto/blob/master/includes/engines/LuaCommon/UstringLibrary.php
+* \p{Nd} is defined as "Decimal number"
+** "Nd Decimal number": https://www.php.net/manual/en/regexp.reference.unicode.php
+* Nd is defined as ASCII 0-9 plus 0-9 in other languages such as Arabic-Indic, Nko, Devanagari
+** https://www.fileformat.info/info/unicode/category/Nd/list.htm
+* Superscript 1 (¹) is defined as Other Number
+** https://www.compart.com/en/unicode/U+00B9
+
+=== PHP test code ===
+<pre>
+$pat = '/(\d\d\d+)+.* /';
+$str = '1796¹ abc';
+preg_match_all($pat, $str, $matches);
+var_dump($matches);
+// should output "1796" not "1796¹"
+</pre>
+
+=== MW test code ===
+* https://en.wikipedia.org/w/index.php?title=Module:Sandbox/Gnosygnu&action=edit
+<pre>
+-- test ¹ is not a DIGIT
+=mw.ustring.gsub("1796¹", '^%s*([%d][%d][%.%d]+).*$', '%1')
+1796	1
+
+-- test ٠ is a DIGIT (ARABIC-INDIC DIGIT ZERO)
+=mw.ustring.gsub("1796٠", '^%s*([%d][%d][%.%d]+).*$', '%1')
+1796٠	1
+
+-- test ٠ is not a LETTER
+=mw.ustring.gsub("17a٠", '^%s*([%d][%d][%.%a]+).*$', '%1')
+17a	1
+</pre>
+
+=== Misc links ===
+* PHP source for PCRE: https://github.com/php/php-src/blob/15cdc6d709fd479dfacf9a3a998f64e8dd562e17/ext/pcre/pcre2lib/pcre2_dfa_match.c
 
 === /extensions/Scribunto/engines/LuaCommon/UstringLibrary.php ===
 // If you change these, also change lualib/ustring/make-tables.php
