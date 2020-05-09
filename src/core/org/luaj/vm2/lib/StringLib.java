@@ -24,6 +24,7 @@ package org.luaj.vm2.lib;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.luaj.vm2.Lua;
 import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.Buffer;
 import org.luaj.vm2.LuaString;
@@ -477,8 +478,8 @@ public class StringLib extends TwoArgFunction {
 				fmt = "%" + fmt.substring(2);					// XOWA: remove leading 0, else MissingFormatWidthException
 			int fmt_len = fmt.length();
 			if (fmt_len > 1 && fmt.charAt(fmt_len - 2) == '.')	// XOWA: penultimmate char has "."
-				fmt = fmt.substring(0, fmt_len - 1) + "0" + fmt.charAt(fmt_len - 1);	// XOWA: add trailing 0, else UnknownFormatConversionException; EX: "02.f" -> "02.0f" 
-			buf.append( String.format(fmt, v) );				// XOWA: call String.format
+				fmt = fmt.substring(0, fmt_len - 1) + "0" + fmt.charAt(fmt_len - 1);	// XOWA: add trailing 0, else UnknownFormatConversionException; EX: "02.f" -> "02.0f"
+			buf.append(String.format(Lua.LUA_LOCALE, fmt, v)); // XOWA: call String.format
 		}		
 		public void format(Buffer buf, LuaString s) {
 			int nullindex = s.indexOf( (byte)'\0', 0 );

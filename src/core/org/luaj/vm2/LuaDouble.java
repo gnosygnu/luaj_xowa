@@ -248,7 +248,7 @@ public class LuaDouble extends LuaNumber {
 		// call sprintf-like format to emulate lua and its call to sprintf
 		// EX:"sprintf((s), "%.14g", (n));"
 		// https://www.lua.org/source/5.1/luaconf.h.html#lua_number2str DATE:2017-06-02
-		String rv = String.format("%.14g", v);
+		String rv = String.format(Lua.LUA_LOCALE, "%.14g", v);
 		
 		// trim 0s; EX: "12.3400" -> "12.34"
 		int len = rv.length();

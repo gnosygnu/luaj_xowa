@@ -22,6 +22,8 @@
 package org.luaj.vm2;
 
 
+import java.util.Locale;
+
 /**
  * Constants for lua limits and opcodes. 
  * <p>
@@ -358,4 +360,7 @@ public class Lua {
 			 source = source.substring(0,MAXSRC-end.length()-3) + "...";
 		 return source + end;
 	}
+
+	// ISSUE#:694: lua is always US; should not vary per user's locale, else String.format issues like "1,23" instead of "1.23"
+	public static final Locale LUA_LOCALE = Locale.US;
 }
