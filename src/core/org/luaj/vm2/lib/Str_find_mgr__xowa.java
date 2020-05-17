@@ -40,9 +40,13 @@ public class Str_find_mgr__xowa extends Str_find_mgr {
 		}
 		return null;		
 	}
-	@Override protected LuaValue Capture__make__int(boolean register_capture, int val) {
+	@Override protected LuaValue Capture__position(boolean register_capture, int val) {
 		if (register_capture) {
-			int capture_bgn = val - 1; // -1 b/c +1'd in "find_mgr.Capture__make__int(register_capture, capture_bgn + Str_find_mgr.Base_1);"
+			// NOTE: -1 b/c "find_mgr.Capture__position" calls this with a base1 val. ISSUE#:726; DATE:2020-05-17;
+			// Specifically:
+			// * XOWA uses LUAJ as a shim for Scribunto PHP Regex (since Java Regex cannot support balanced parentheses); See Scrib_pattern_matcher__xowa
+			// * So, subtract -1 since Scribunto will need base-0 indexes (remember, it would ordinarily call PHP Regex which is base-0, not Lua Pattern Matching which is base-1)
+			int capture_bgn = val - Str_find_mgr.Base_1;
 			int capture_end = val < this.src_len ? val : this.src_len;
 			captures_ary[capture_idx++] = capture_bgn;
 			captures_ary[capture_idx++] = capture_end;

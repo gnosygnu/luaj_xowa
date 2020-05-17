@@ -37,7 +37,7 @@ class Str_find_mgr__lua extends Str_find_mgr {
 			captures_ary[captures_idx++] = rv;
 		return rv;		
 	}
-	@Override protected LuaValue Capture__make__int(boolean register_capture, int val) {
+	@Override protected LuaValue Capture__position(boolean register_capture, int val) {
 		LuaValue rv = LuaValue.valueOf(val);
 		if (register_capture)
 			captures_ary[captures_idx++] = rv;

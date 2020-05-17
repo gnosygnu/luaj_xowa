@@ -152,7 +152,16 @@ public class Match_state {
 			}
 			int capture_bgn = capture_bgns[i];
 			if (capture_len == CAP_POSITION) {
-				return find_mgr.Capture__make__int(register_capture, capture_bgn + Str_find_mgr.Base_1);
+				// assert register_capture is true; refactor code to remove register_capture from Capture__position after next enwiki build
+				if (!register_capture) {
+					throw new LuaError("LUAJ_XOWA:register capture should always be true");
+				}
+				// NOTE: +1 to normalize capture to base1; ISSUE#:726; DATE:2020-05-17;
+				// REF.LUA: https://www.lua.org/source/5.1/lstrlib.c.html
+				//   if (l == CAP_POSITION)
+				//     lua_pushinteger(ms->L, ms->capture[i].init - ms->src_init + 1);
+				// REF.LUAJ: https://github.com/luaj/luaj/blob/master/src/core/org/luaj/vm2/lib/StringLib.java#L954
+				return find_mgr.Capture__position(register_capture, capture_bgn + Str_find_mgr.Base_1);
 			} else {
 				return find_mgr.Capture__make__string(register_capture, capture_bgn, capture_bgn + capture_len);
 			}

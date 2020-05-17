@@ -1,7 +1,6 @@
 package org.luaj.vm2.lib;
 
 import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.LuaInteger;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.Varargs;
 import gplx.objects.strings.char_sources.*;
@@ -29,7 +28,7 @@ public abstract class Str_find_mgr {
 	protected abstract LuaValue   Captures__make__none();
 	protected abstract Varargs    Captures__make__many();
 	protected abstract LuaValue   Capture__make__string(boolean register_capture, int bgn, int end);
-	protected abstract LuaValue   Capture__make__int(boolean register_capture, int val);
+	protected abstract LuaValue   Capture__position(boolean register_capture, int val);
 	protected abstract Varargs    Result__make__plain(int bgn, int end);
 	protected abstract Varargs    Result__make__find(int bgn, int end);
 	protected abstract Varargs    Result__make__match();
