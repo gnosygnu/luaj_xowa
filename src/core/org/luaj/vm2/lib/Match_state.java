@@ -387,22 +387,16 @@ public class Match_state {
 							}
 							int ep = classend(pat_pos);
 							int previous = (src_pos == 0) ? -1 : src.Get_data(src_pos - 1);
+							// NOTE: reinstated `next` variable declaration (must have been lost in refactoring); ISSUE#:732; DATE:2020-05-29
 							// REF.LUA:https://www.lua.org/source/5.1/lstrlib.c.html
+							// REF.LUAJ:https://github.com/luaj/luaj/blob/master/src/core/org/luaj/vm2/lib/StringLib.java
+							int next = (src_pos == src.Len_in_data()) ? '\0' : src.Get_data(src_pos);
 							// XOWA:
 							// * DATE:2014-08-14: added bounds check of "src_pos < src.m_length"
 							// * DATE:2016-01-28: changed "matchbracketclass" to "!matchbracketclass"; PAGE:en.w:A
-							// * DATE:2020-05-27: changed "src_pos < src.Len_in_data() && " to "src_pos >= src.Len_in_data() ||"; ISSUE#:732
-							//   * Note that EOS should be considered like BOS (See src_pos == 0 -> -1)
-							//     function p.test_732()
-							//       mw.ustring.gsub("a", "([a])(%f[%s])", function(pos1, pos2)
-							//         mw.log(pos1, pos2); // should not log
-							//       end)
-							//     end
-							if
-							(   matchbracketclass(previous              , pat_pos, ep - 1)
-							||  src_pos >= src.Len_in_data()
-							|| 	!matchbracketclass(src.Get_data(src_pos), pat_pos, ep - 1)
-							) {
+							// * DATE:2020-05-29: removed "src_pos < src.Len_in_data() && "; ISSUE#:732
+							if ( matchbracketclass(previous, pat_pos, ep - 1)
+							||  !matchbracketclass(next    , pat_pos, ep - 1)) {
 								return NULL;
 							}
 							pat_pos = ep;
