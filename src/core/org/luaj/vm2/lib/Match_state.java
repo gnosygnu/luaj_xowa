@@ -51,7 +51,7 @@ public class Match_state {
 				if (!Character.isDigit((char)b)) {
 					lbuf.append(b);
 				} else if (b == '0') {
-					lbuf.append(src.Substring(str_off, str_end));
+					lbuf.append(src.SubstringAsBry(str_off, str_end));// NOTE:standardized to SubstringAsBry ISSUE#735; DATE:2020-06-03
 				} else {
 					lbuf.append(push_onecapture(false, b - '1', str_off, str_end).strvalue());
 				}
@@ -109,7 +109,8 @@ public class Match_state {
 		}
 
 		if (!repl.toboolean()) { // nil or false?
-			repl = LuaValue.valueOf(src.Substring(src_pos, str_end)); // keep original text
+			// TOMBSTONE: was LuaValue.valueOf(src.Substring(src_pos, str_end)), but this fails for multi-byte chars in LUA mode (not XOWA mode)
+			repl = LuaValue.valueOf(src.SubstringAsBry(src_pos, str_end)); // keep original text
 		} else if (!repl.isstring()) {
 			LuaValue.error("invalid replacement value (a " + repl.typename() + ")");
 		}

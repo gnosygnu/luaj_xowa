@@ -72,6 +72,10 @@ public class LuaString extends LuaValue implements Char_source {
 		String rv = decodeAsUtf8(m_bytes, bgn + m_offset, end - bgn);
 		return rv;
 	}
+	public byte[] SubstringAsBry(int bgn, int end) {
+		// NOTE: MUST use substring.m_bytes, not Substring().getBytes(); FOOTNOTE:SUBSTRING_MULTI_BYTE_CHARS ISSUE#:735; DATE:2020-05-03
+		return substring(bgn, end).m_bytes;
+	}
 	public int Index_of(Char_source find, int bgn) {
 		int find_len = find.Len_in_data();
 		int src_bgn = m_offset + bgn;
@@ -1187,3 +1191,20 @@ public class LuaString extends LuaValue implements Char_source {
 		tmp_ary[1] = ((v - 0x10000) % 0x400 + 0xDC00);
 	}
 }
+/*
+== SUBSTRING_MULTI_BYTE_CHARS ==
+`SubstringAsBry()` MUST use substring.m_bytes, not Substring().getBytes();
+
+This is necessary for multi-byte chars and single-character matches like `.`. For example: `string.gsub("¢", ".", tbl);`
+
+Since lua matches at the byte-level, Lua will incrementally add each byte of the multi-byte char one-by-one to the ByteBuffer.
+For example, "¢" gets added to the ByteBuffer as "-62" in the one pass, and then "-94" in another pass
+
+When `new LuaString()` is called, it is still properly passed a byte[] of `{-62}` and a byte[] of `{-94}`
+These will later be concatenated to "reconsistute" the "{-62, -94}" of "¢" if `substring.m_bytes` is called.
+
+However, if Substring().getBytes() is called, Java will try to create a String from `{-62}`.
+Since this is an invalid UTF-8 byte sequence, Java will instead "fix" it by creating a string with bytes {-17, -65, -126}
+
+See also ISSUE#:504 and `"æ".Substring(0, 1)`
+*/

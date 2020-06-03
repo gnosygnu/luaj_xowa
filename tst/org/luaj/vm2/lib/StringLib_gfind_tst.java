@@ -29,14 +29,9 @@ public class StringLib_gfind_tst {
 		fxt.Test__match(LuaString.valueOf(Bry_.New_utf08("abcde"), 1, 4), "b", 0, "b"); // Note that string starts from "b"; fails if "a" is returned 
 	}	
 
-	@Test public void Unicode() { // PURPOSE:
-//		fxt.Test__gsub("齧り付く", ".", "a", "齧り付く");
+	@Test public void Unicode() { // PURPOSE:handle multi-byte chars in table match ISSUE#:735; DATE:2020-06-03
 		LuaTable tbl = new LuaTable();
-		tbl.set("a1", "b1");
-		fxt.Test__gsub_tbl("¢", ".", tbl, "¢");
-//		fxt.Test__var("a¢z");   // 2-byte
-//		fxt.Test__var("a€z");   // 3-byte
-//		fxt.Test__var("a𤭢z");  // 4-byte
+		fxt.Test__gsub_tbl("¢", ".", tbl, "¢"); // fails with `��`
 	}
 }
 class StringLib_fxt {

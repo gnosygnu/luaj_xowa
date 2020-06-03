@@ -159,7 +159,17 @@ public final class Buffer {
 		return this;
 	}
 	
-	/** 
+	public final Buffer append( byte[] bry ) {
+		final int len = bry.length;
+		makeroom( 0, len );
+		for (int i = 0; i < len; i++) {
+			bytes[offset + i] = bry[i];
+		}
+		length += len;
+		return this;
+	}
+
+	/**
 	 * Append a Java String to the buffer.
 	 * The Java string will be converted to bytes using the UTF8 encoding. 
 	 * @return {@code this} to allow call chaining
