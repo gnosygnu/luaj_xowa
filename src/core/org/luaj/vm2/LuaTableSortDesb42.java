@@ -21,7 +21,7 @@ class LuaTableSortDesb42 {
 				swap(lower, upper);	/* swap a[lower] - a[upper] */
 			if (upper-lower == 1) break;	/* only 2 elements */
 			i = (lower+upper)/2;
-			if (compare_b(i))	/* a[i]<a[lower]? */
+			if (compare(i, lower))	/* a[i]<a[lower]? */
 				swap(i, lower);
 			else {
 				if (compare(upper, i))	/* a[upper]<a[i]? */

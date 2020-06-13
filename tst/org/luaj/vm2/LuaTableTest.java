@@ -41,44 +41,6 @@ public class LuaTableTest {
 			);
 		fxt.Test("1=a;2=b;");
 	}
-	@Test public void sort() {
-		testSortBasic("'d', 'c', 'b', 'a'", "'a', 'b', 'c', 'd'");
-		testSortBasic("'a', 'd', 'c', 'b', 'e'", "'a', 'b', 'c', 'd', 'e'");
-		testSortBasic("'a', 'b', 'c', 'd', 'e'", "'a', 'b', 'c', 'd', 'e'");
-
-		testSortBasic("'a', 'a', 'a', 'a', 'a'", "'a', 'a', 'a', 'a', 'a'");
-		testSortBasic("'a'", "'a'");
-		testSortBasic("'b', 'a'", "'a', 'b'");
-		testSortBasic("'c', 'b', 'a'", "'a', 'b', 'c'");
-		testSortBasic("'d', 'c', 'b', 'a'", "'a', 'b', 'c', 'd'");
-		testSortBasic("'e', 'd', 'c', 'b', 'a'", "'a', 'b', 'c', 'd', 'e'");
-
-		testSortBasic("'a', 'b'", "'a', 'b'");
-		testSortBasic("'a', 'b', 'c'", "'a', 'b', 'c'");
-		testSortBasic("'a', 'b', 'c', 'd'", "'a', 'b', 'c', 'd'");
-		testSortBasic
-		("'a', 'b', 'c', 'd', 'e', 'b', 'c', 'd', 'e', 'b', 'c', 'd', 'e', 'b', 'c', 'd', 'e', 'b', 'c', 'd', 'e', 'd', 'e', 'b', 'c', 'd', 'e', 'd', 'e', 'b', 'c', 'd', 'e', 'd', 'e', 'b', 'c', 'd', 'e', 'd', 'e', 'b', 'c', 'd', 'e'"
-		, "'a', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'd', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'");
-	}
-	private void testSortBasic(String tblStr, String expd) {
-		fxt.Clear();
-		fxt.Init__script
-		( "local tbl = {" + tblStr + "};"
-		, "table.sort(tbl);"
-		, "local rv = '';"
-		, "table.foreachi"
-		, "( tbl"
-		, ", function (k, v)"
-		, "    if rv ~= '' then"
-		, "      rv = rv .. ', '"
-		, "    end"
-		, "    rv = rv .. '\\'' .. v .. '\\''"
-		, "  end"
-		, ");"
-		, "return rv;"
-		);
-		fxt.Test(expd);
-	}
 	@Test public void remove_on_empty_table_should_return_nil_not_none() { // ISSUE#:604; DATE:2019-10-30
 		LuaTable tbl = new LuaTable();
 		LuaValue nil = tbl.remove(1); // should return NIL, not NONE
