@@ -840,8 +840,28 @@ public class LuaTable extends LuaValue implements Metatable {
 		int n = array.length;
 		while ( n > 0 && array[n-1] == null )
 			--n;
-		if ( n > 1 ) 
+		if ( n > 1 ) {
+			// original LuaJ sort; note that it uses MergeSort instead of QuickSort and is not stable
+			/*
 			heapSort(n, comparator);
+			*/
+
+			// classic Sedgewick Quicksort algo; note that it is not stable
+			/*
+			LuaTableSortQuick algo = new LuaTableSortQuick(this, comparator);
+			algo.sort(1, n);
+			*/
+
+			// port of original Lua's ltablib.c
+			/*
+			*/
+//			LuaTableSortC algo = new LuaTableSortC(this, comparator);
+//			algo.auxsort(1, n);
+
+			// port of original Lua's ltablib.c but more legible and emulates stack-processing (for PERF)
+			LuaTableSortDesb42 algo = new LuaTableSortDesb42(m_metatable, array, n, comparator);
+			algo.sort(n);
+		}
 	}
 
 	private void heapSort(int count, LuaValue cmpfunc) {
@@ -870,7 +890,7 @@ public class LuaTable extends LuaValue implements Metatable {
 		}
 	}
 
-	private boolean compare(int i, int j, LuaValue cmpfunc) {
+	public boolean compare(int i, int j, LuaValue cmpfunc) {
 		LuaValue a, b;
 		if (m_metatable == null) {
 			a = array[i];
