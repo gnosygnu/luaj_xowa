@@ -4,7 +4,7 @@
 	<property name="jar.name.jme" value="luaj-jme-${version}.jar"/>
 	<property name="jar.name.jse" value="luaj_xowa.jar"/>
 	<property name="jar.name.sources" value="luaj-sources-${version}.jar"/>
-
+  <property name="baselib_path" location="C:\xowa_release\build\src\xowa\baselib"/>
 	<target name="clean-build">
 		<delete dir="build"/>
 	</target>
@@ -32,7 +32,7 @@
   <target name="compile_baselib">
     <delete dir="build/baselib/bin"/>
     <mkdir dir="build/baselib/bin"/>
-    <javac fork="yes" includeantruntime="false" sourcepath="" srcdir="../baselib" destdir="build/baselib/bin" classpath="lib/junit.jar">
+    <javac fork="yes" includeantruntime="false" sourcepath="" srcdir="${baselib_path}" destdir="build/baselib/bin" classpath="lib/junit.jar">
       <include name="**/*.java"/>
     </javac>
   </target>
@@ -47,14 +47,14 @@
 		<copy todir="build/jme/src">
 			<fileset dir="src/core"/>
 			<fileset dir="src/jme"/>
-      <fileset dir="../baselib/src"/>
+      <fileset dir="${baselib_path}/src"/>
 			<filterchain>
 				<tokenfilter><replacestring from='"Luaj 0.0"' to='"Luaj-jme ${version}"'/></tokenfilter>
 			</filterchain>
 		</copy>
 		<copy todir="build/jse/src">
 			<fileset dir="src/core"/>
-      <fileset dir="../baselib/src"/>
+      <fileset dir="${baselib_path}/src"/>
 			<filterchain>
 				<tokenfilter><replacestring from='"Luaj 0.0"' to='"Luaj-jse ${version}"'/></tokenfilter>
 			</filterchain>
