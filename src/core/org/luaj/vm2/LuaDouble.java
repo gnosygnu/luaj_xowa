@@ -28,6 +28,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Formatter;
 import java.util.Locale;
 
+import gplx.objects.primitives.Double_;
 import org.luaj.vm2.lib.MathLib;
 
 /**
@@ -71,7 +72,7 @@ public class LuaDouble extends LuaNumber {
 	
 	/** Constant String representation for NaN (not a number), "nan" */
 	public static final String JSTR_NAN    = "nan";
-	
+
 	/** Constant String representation for positive infinity, "inf" */
 	public static final String JSTR_POSINF = "inf";
 
@@ -242,68 +243,11 @@ public class LuaDouble extends LuaNumber {
 		if ( Double.isInfinite(v) ) 
 			return (v<0? JSTR_NEGINF: JSTR_POSINF);
 
-		/*
-		return Float.toString((float)v);
-		*/
-		// call sprintf-like format to emulate lua and its call to sprintf
-		// EX:"sprintf((s), "%.14g", (n));"
-		// https://www.lua.org/source/5.1/luaconf.h.html#lua_number2str DATE:2017-06-02
-		String rv = String.format(Lua.LUA_LOCALE, "%.14g", v);
-		
-		// trim 0s; EX: "12.3400" -> "12.34"
-		int len = rv.length();
-		// guard against array out of bounds
-		if (len > 0) {
-			// init vars
-			boolean check_for_zero = true;
-			boolean reading_zeroes = false;
-			int trim_idx = -1;
-			int exponent_index = -1;
-			
-			for (int i = len - 1; i > -1; i--) {
-				switch (rv.charAt(i)) {
-					case '0':
-						// if in "check_for_zero" mode (at end of string), then enable reading_zeroes; EX: "12.0"; "1.0e5"
-						if (check_for_zero) {
-							check_for_zero = false;
-							reading_zeroes = true;
-						}
-						
-						// if reading zeroes, set trim_idx to index just before this 0
-						if (reading_zeroes)
-							trim_idx = i;
-						break;
-					case '1': case '2': case '3': case '4': case '5':
-					case '6': case '7': case '8': case '9':
-						// disable reading zeroes; EX: "12.30"
-						reading_zeroes = false;
-						break;
-					case '-': // ignore for scientific notation; EX: 5.0e-17
-						break;
-					case 'e': // scientific notation; reset trim_idx; EX: 5.0000000000000e-17
-						exponent_index = i;
-						check_for_zero = true; // reset check_for_zeroo
-						break;
-					case '.':
-						// everything zeroes; truncate decimal point also; EX: "123.0000" -> "123" x> "123."
-						if (reading_zeroes)
-							trim_idx = i;
+		// TOMBSTONE: LuaJ implementation
+		// return Float.toString((float)v);
 
-						// something to trim; note that this is needed to handle numbers like "94510558.33929849"
-						if (trim_idx != -1) {
-							rv = (exponent_index == -1)
-								? rv.substring(0, trim_idx) // decimal notation; just trim
-								: rv.substring(0, trim_idx) + rv.substring(exponent_index, len); // scientific notation; trim number and then add exponent; EX: "5.0e3" -> "5e3"
-						}
-						break;
-					default:
-						// anything else; exit
-						i = -1;
-						break;
-				}
-			}				
-		}
-		return rv;
+		// stringify but trimZeroes; ISSUE#:697; DATE:2020-08-12
+		return Double_.ToStrByPrintF(v);
 	}
 	
 	public LuaString strvalue() {
